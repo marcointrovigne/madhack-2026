@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>treasury/ai // pitch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#070707;
+    --bg-2:#0C0C0C;
+    --bg-3:#121212;
+    --line:#1F1F1F;
+    --line-2:#2A2A2A;
+    --text:#F2F2F2;
+    --text-2:#9A9A9A;
+    --text-3:#5A5A5A;
+    --text-4:#3A3A3A;
+    --yellow:#E8FF00;
+    --yellow-dim:rgba(232,255,0,0.12);
+    --yellow-glow:rgba(232,255,0,0.35);
+    --red:#FF3D3D;
+    --green:#3DFF8B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:var(--bg)}
+  body{
+    color:var(--text);
+    font-family:"Geist",-apple-system,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size:48px 48px;
+    mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,0.012) 0, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:overlay;opacity:.5;
+  }
+  ::selection{background:var(--yellow);color:#000}
+  .mono{font-family:"Geist Mono","JetBrains Mono",ui-monospace,monospace}
+
+  /* HUD */
+  .progress{position:fixed;top:0;left:0;right:0;height:2px;background:var(--line);z-index:100}
+  .progress .bar{height:100%;background:var(--yellow);box-shadow:0 0 12px var(--yellow-glow);transition:width .5s cubic-bezier(.2,.7,.2,1)}
+  .hud-top{
+    position:fixed;top:2px;left:0;right:0;z-index:100;
+    background:rgba(7,7,7,0.78);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--text-3);
+    display:flex;justify-content:space-between;align-items:center;padding:8px 24px;
+  }
+  .hud-top .left,.hud-top .right{display:flex;gap:18px;align-items:center}
+  .hud-top .dot{width:6px;height:6px;background:var(--yellow);border-radius:50%;box-shadow:0 0 10px var(--yellow-glow);animation:blink 1.6s infinite}
+  .hud-top b{color:var(--text-2);font-weight:500}
+  .hud-top .y{color:var(--yellow)}
+  @keyframes blink{50%{opacity:.35}}
+
+  .hud-bot{
+    position:fixed;bottom:0;left:0;right:0;z-index:100;
+    background:rgba(7,7,7,0.78);backdrop-filter:blur(10px);
+    border-top:1px solid var(--line);
+    font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--text-3);
+    display:flex;justify-content:space-between;align-items:center;padding:10px 24px;
+  }
+  .hud-bot .left,.hud-bot .right,.hud-bot .center{display:flex;gap:18px;align-items:center}
+  .hud-bot .key{display:inline-flex;align-items:center;gap:6px;color:var(--text-2)}
+  .hud-bot .kbd{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;background:var(--bg-3);border:1px solid var(--line-2);color:var(--text);font-size:10px;font-weight:500}
+  .hud-bot .ctr{color:var(--yellow)}
+  .hud-bot .ctr b{color:var(--yellow);font-weight:600}
+  .hud-bot button{background:transparent;border:1px solid var(--line-2);color:var(--text-2);font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;padding:6px 10px;cursor:pointer}
+  .hud-bot button:hover{color:var(--yellow);border-color:var(--yellow);box-shadow:0 0 14px var(--yellow-glow)}
+  @media (max-width:780px){.hud-top .right,.hud-bot .left,.hud-bot .right{display:none}}
+
+  /* DECK */
+  .deck{display:flex;height:100vh;transition:transform .6s cubic-bezier(.2,.7,.2,1);will-change:transform}
+  .slide{
+    flex:0 0 100vw;height:100vh;position:relative;
+    padding:80px 6vw 64px;
+    display:flex;align-items:center;overflow:hidden;
+  }
+  .slide-inner{width:100%;max-width:1200px;margin:0 auto;position:relative;z-index:3}
+  .slide.active .anim{animation:slideIn .9s cubic-bezier(.2,.7,.2,1) both}
+  .slide.active .anim-1{animation-delay:.05s}
+  .slide.active .anim-2{animation-delay:.15s}
+  .slide.active .anim-3{animation-delay:.28s}
+  .slide.active .anim-4{animation-delay:.4s}
+  .slide.active .anim-5{animation-delay:.52s}
+  @keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .marker{
+    position:absolute;top:80px;left:6vw;right:6vw;
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:"Geist Mono",monospace;font-size:11px;letter-spacing:0.18em;
+    color:var(--text-3);text-transform:uppercase;z-index:4;
+  }
+  .marker .id{color:var(--yellow)}
+  .marker .id::before{content:"//";margin-right:8px}
+
+  /* Type */
+  h1,h2,h3,.eyebrow{font-family:"Geist Mono",monospace;font-weight:600;text-transform:uppercase;letter-spacing:-0.04em;line-height:0.94}
+  h1{font-size:clamp(56px,8.5vw,140px)}
+  h2{font-size:clamp(40px,5.2vw,76px)}
+  h3{font-size:clamp(20px,2.2vw,32px);font-weight:500;letter-spacing:-0.02em}
+  .y{color:var(--yellow);text-shadow:0 0 24px var(--yellow-glow)}
+  .hl{background:var(--yellow);color:#000;padding:0 .12em;box-shadow:0 0 28px var(--yellow-glow);box-decoration-break:clone;-webkit-box-decoration-break:clone}
+  .lead{font-family:"Geist",sans-serif;font-size:clamp(15px,1.3vw,19px);line-height:1.5;color:var(--text-2);max-width:60ch}
+  .lead b{color:var(--text);font-weight:600}
+  .eyebrow{font-size:11px;letter-spacing:0.16em;color:var(--text-3);font-weight:500;display:inline-flex;gap:10px;align-items:center}
+  .eyebrow::before{content:"//";color:var(--yellow)}
+
+  /* SLIDE 01 — TITLE */
+  .s-title .slide-inner{display:grid;grid-template-columns:1fr;gap:18px}
+  .s-title .brand{display:flex;align-items:center;gap:16px;margin-bottom:32px}
+  .s-title .brand-mark{width:56px;height:56px;background:var(--yellow);color:#000;display:grid;place-items:center;font-family:"Geist Mono",monospace;font-weight:700;font-size:24px;letter-spacing:-0.04em;box-shadow:0 0 36px var(--yellow-glow)}
+  .s-title .brand-name{font-family:"Geist Mono",monospace;font-size:20px;font-weight:600;letter-spacing:0.02em;text-transform:uppercase}
+  .s-title .brand-name .y{color:var(--yellow)}
+  .s-title h1{font-size:clamp(60px,10vw,170px);line-height:0.86}
+  .s-title h1 .ln{display:block}
+  .s-title h1 .lo{color:var(--text-3)}
+  .s-title .meta{
+    display:flex;justify-content:space-between;align-items:end;
+    margin-top:36px;padding-top:24px;border-top:1px solid var(--line-2);
+    font-family:"Geist Mono",monospace;font-size:12px;letter-spacing:0.12em;
+    color:var(--text-3);text-transform:uppercase;flex-wrap:wrap;gap:24px;
+  }
+  .s-title .meta .col span{display:block;color:var(--text)}
+  .s-title .meta .col small{color:var(--text-3)}
+  .s-title .corner{
+    position:absolute;right:6vw;top:130px;
+    width:200px;height:200px;
+    border:1px dashed rgba(232,255,0,0.3);
+    display:grid;place-items:center;color:var(--yellow);
+    font-family:"Geist Mono",monospace;font-size:11px;letter-spacing:0.16em;
+    text-transform:uppercase;text-align:center;transform:rotate(8deg);
+    box-shadow:inset 0 0 60px rgba(232,255,0,0.05);
+  }
+  .s-title .corner b{color:var(--yellow);font-weight:600}
+  .s-title .corner .big{font-size:38px;font-weight:600;color:var(--yellow);text-shadow:0 0 18px var(--yellow-glow);letter-spacing:-0.04em;display:block;margin:6px 0}
+  @media (max-width:980px){.s-title .corner{display:none}}
+
+  /* SLIDE 02 — PROBLEM */
+  .s-problem .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center}
+  .s-problem h2{font-size:clamp(36px,5vw,72px);line-height:.96}
+  .s-problem .stat-frame{
+    border:1px solid var(--line-2);background:var(--bg-2);padding:24px;position:relative;
+  }
+  .s-problem .stat-frame::before{
+    content:"GAP_ANALYSIS.csv :: SAMPLE €3M";position:absolute;top:-1px;left:24px;transform:translateY(-50%);
+    background:var(--bg);font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.18em;
+    padding:4px 10px;border:1px solid var(--line-2);color:var(--text-3);text-transform:uppercase;
+  }
+  .s-problem .stat-frame .row{display:flex;justify-content:space-between;align-items:baseline;padding:10px 0;border-bottom:1px dashed var(--line-2);font-family:"Geist Mono",monospace;font-size:12px;color:var(--text-2)}
+  .s-problem .stat-frame .row:last-child{border-bottom:none}
+  .s-problem .stat-frame .row b{font-size:20px;color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+  .s-problem .stat-frame .row.neg b{color:var(--red)}
+  .s-problem .stat-frame .row.pos b{color:var(--yellow);text-shadow:0 0 14px var(--yellow-glow)}
+  .s-problem .stat-frame .gap{
+    margin-top:14px;padding:14px;
+    background:linear-gradient(90deg,rgba(232,255,0,0.18),rgba(232,255,0,0.04));
+    border:1px solid var(--yellow);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;
+    box-shadow:0 0 60px -20px var(--yellow-glow);
+  }
+  .s-problem .gap .l{font-family:"Geist Mono",monospace;font-size:10px;color:var(--yellow);letter-spacing:0.2em;text-transform:uppercase}
+  .s-problem .gap .n{font-family:"Geist Mono",monospace;font-size:32px;color:var(--yellow);font-weight:600;text-shadow:0 0 20px var(--yellow-glow);font-variant-numeric:tabular-nums}
+  .s-problem .reasons{display:grid;gap:8px;margin-top:18px}
+  .s-problem .reason{
+    display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;
+    padding:8px 12px;border-left:2px solid var(--red);
+    font-family:"Geist Mono",monospace;font-size:12px;color:var(--text-2);
+  }
+  .s-problem .reason .x{color:var(--red);font-weight:600;font-size:13px}
+  .s-problem .reason b{color:var(--text);font-weight:500}
+
+  /* SLIDE 03 — PRODUCT */
+  .s-product .grid{display:grid;grid-template-columns:1fr 1.05fr;gap:40px;align-items:center}
+  .s-product h2{font-size:clamp(34px,4.6vw,64px);line-height:.96}
+  .topology{position:relative;width:100%;aspect-ratio:1/1;max-width:520px;margin:0 auto}
+  .topology svg{width:100%;height:100%}
+  .topology .node-label{font-family:"Geist Mono",monospace;font-size:10px;fill:var(--text);letter-spacing:0.06em;font-weight:500}
+  .topology .node-circle{fill:var(--bg-3);stroke:var(--yellow);stroke-width:1;filter:drop-shadow(0 0 6px rgba(232,255,0,0.25))}
+  .topology .node-cfo{fill:#0E0F00;stroke:var(--yellow);stroke-width:2;filter:drop-shadow(0 0 18px rgba(232,255,0,0.55))}
+  .topology .link{stroke:var(--yellow);stroke-width:1;opacity:.4;fill:none;stroke-dasharray:3 4}
+  .topology .pulse{fill:var(--yellow)}
+  .agent-list{display:grid;margin-top:14px}
+  .agent-row{display:grid;grid-template-columns:auto 1fr;gap:14px;padding:10px 0;border-bottom:1px dashed var(--line-2);align-items:start}
+  .agent-row .role{font-family:"Geist Mono",monospace;color:var(--yellow);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;min-width:130px;text-shadow:0 0 12px var(--yellow-glow)}
+  .agent-row .role::before{content:"› "}
+  .agent-row .desc{color:var(--text-2);font-size:12px;line-height:1.5}
+  .gate{
+    margin-top:14px;padding:10px 14px;
+    border:1px solid var(--yellow);background:var(--yellow-dim);
+    font-family:"Geist Mono",monospace;font-size:11px;color:var(--yellow);letter-spacing:0.04em;
+    text-shadow:0 0 12px var(--yellow-glow);
+  }
+  .gate b{color:var(--yellow);font-weight:600}
+
+  /* SLIDE 04 — DEMO */
+  .s-demo .grid{display:grid;grid-template-columns:1fr 1.05fr;gap:40px;align-items:center}
+  .s-demo h2{font-size:clamp(34px,4.6vw,68px)}
+  .terminal{background:var(--bg-2);border:1px solid var(--line-2);box-shadow:0 30px 80px -30px rgba(232,255,0,0.08)}
+  .term-bar{display:flex;align-items:center;gap:10px;padding:9px 14px;background:var(--bg-3);border-bottom:1px solid var(--line-2);font-family:"Geist Mono",monospace;font-size:11px;color:var(--text-3);letter-spacing:0.06em}
+  .term-bar .dots{display:flex;gap:6px}
+  .term-bar .dots i{width:9px;height:9px;border-radius:50%;background:var(--text-4);display:block}
+  .term-bar .dots i:nth-child(2){background:#3A3A3A}
+  .term-bar .dots i:nth-child(3){background:var(--yellow);box-shadow:0 0 8px var(--yellow-glow)}
+  .term-bar .path{margin-left:auto;color:var(--text-3)}
+  .term-bar .path b{color:var(--yellow);font-weight:500}
+  .term-body{padding:18px;font-family:"Geist Mono",monospace;font-size:12px;line-height:1.7;color:var(--text-2)}
+  .term-body .u::before{content:"$ ";color:var(--yellow)}
+  .term-body .u{color:var(--text)}
+  .term-body .a::before{content:"› ";color:var(--text-3)}
+  .term-body .a{color:var(--text-3)}
+  .term-body .ok::before{content:"[OK] ";color:var(--green);font-weight:600}
+  .term-body .veto::before{content:"[VETO] ";color:var(--red);font-weight:600}
+  .term-body .veto{color:var(--red)}
+  .term-body .a.y{color:var(--yellow)}
+  .term-body span.cur{display:inline-block;width:8px;height:13px;background:var(--yellow);box-shadow:0 0 10px var(--yellow-glow);vertical-align:-2px;animation:blink 1s infinite}
+  .wow{margin-top:14px;padding:12px 14px;border:1px solid var(--yellow);background:var(--yellow-dim);font-family:"Geist Mono",monospace;font-size:12px;color:var(--yellow);letter-spacing:0.04em;text-shadow:0 0 12px var(--yellow-glow)}
+  .wow b{font-weight:600}
+
+  /* SLIDE 05 — MARKET */
+  .s-market{text-align:left}
+  .s-market .top{display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:end;margin-bottom:32px}
+  .s-market .big{font-family:"Geist Mono",monospace;font-size:clamp(100px,18vw,280px);line-height:.86;font-weight:700;letter-spacing:-0.06em;color:var(--yellow);text-shadow:0 0 60px var(--yellow-glow)}
+  .s-market .label{font-family:"Geist Mono",monospace;font-size:13px;letter-spacing:0.16em;color:var(--text-2);text-transform:uppercase;margin-top:12px}
+  .s-market .label b{color:var(--yellow)}
+  .s-market .arrs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-2);border:1px solid var(--line-2)}
+  .s-market .arr{padding:18px 22px;background:var(--bg-2)}
+  .s-market .arr .k{font-family:"Geist Mono",monospace;font-size:10px;color:var(--text-3);letter-spacing:0.16em;text-transform:uppercase}
+  .s-market .arr .v{font-family:"Geist Mono",monospace;font-size:32px;font-weight:600;letter-spacing:-0.02em;margin-top:6px;color:var(--text);font-variant-numeric:tabular-nums}
+  .s-market .arr.y .v{color:var(--yellow);text-shadow:0 0 20px var(--yellow-glow)}
+  .s-market .arr .d{font-family:"Geist Mono",monospace;font-size:10px;color:var(--text-3);margin-top:4px;letter-spacing:0.04em}
+  .s-market .punch{margin-top:18px;font-family:"Geist Mono",monospace;font-size:13px;color:var(--yellow);text-shadow:0 0 12px var(--yellow-glow);letter-spacing:0.06em;text-transform:uppercase;text-align:right}
+
+  /* SLIDE 06 — MOAT (GTM + WHY WE WIN COMBINED) */
+  .s-moat h2{font-size:clamp(34px,4.6vw,68px);margin-bottom:24px}
+  .s-moat .grid{display:grid;grid-template-columns:1.05fr 1fr;gap:32px;align-items:start}
+  .s-moat .phase{padding:20px 22px;border:1px solid var(--line-2);background:var(--bg-2);margin-bottom:14px;position:relative}
+  .s-moat .phase.p2{background:#0F0F0F}
+  .s-moat .phase .tag{font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--yellow);margin-bottom:8px}
+  .s-moat .phase h3{font-size:22px;font-weight:600;letter-spacing:-0.02em;margin-bottom:10px;text-transform:uppercase}
+  .s-moat .phase p{color:var(--text-2);font-size:13px;line-height:1.5}
+  .s-moat .phase p b{color:var(--text)}
+  .s-moat .why{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line-2);border:1px solid var(--line-2)}
+  .s-moat .why .card{padding:16px 18px;background:var(--bg-2);transition:background .25s}
+  .s-moat .why .card:hover{background:var(--bg-3)}
+  .s-moat .why .card .num{font-family:"Geist Mono",monospace;font-size:10px;color:var(--text-3);letter-spacing:0.18em;margin-bottom:6px}
+  .s-moat .why .card .num::before{content:"[";color:var(--yellow)}
+  .s-moat .why .card .num::after{content:"]";color:var(--yellow)}
+  .s-moat .why .card h4{font-family:"Geist Mono",monospace;font-size:15px;font-weight:600;text-transform:uppercase;letter-spacing:-0.01em;line-height:1.1;margin-bottom:4px}
+  .s-moat .why .card .sub{font-family:"Geist Mono",monospace;font-size:10px;color:var(--text-3);letter-spacing:0.06em;text-transform:uppercase}
+  .s-moat .why .card .sub b{color:var(--yellow)}
+  .s-moat .why .card.featured{background:linear-gradient(135deg,rgba(232,255,0,0.16),rgba(232,255,0,0.02))}
+  .s-moat .why .card.featured h4{color:var(--yellow);text-shadow:0 0 14px var(--yellow-glow)}
+
+  /* SLIDE 07 — CLOSING */
+  .s-close{text-align:left}
+  .s-close .quote{
+    font-family:"Geist Mono",monospace;font-size:clamp(26px,3.6vw,52px);
+    font-weight:500;letter-spacing:-0.02em;line-height:1.1;text-transform:uppercase;
+    max-width:24ch;
+  }
+  .s-close .quote .y{color:var(--yellow);text-shadow:0 0 26px var(--yellow-glow)}
+  .s-close .ask{
+    margin-top:36px;padding-top:24px;border-top:1px solid var(--line-2);
+    display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+  }
+  .s-close .ask .item{font-family:"Geist Mono",monospace;font-size:12px;color:var(--text-2);letter-spacing:0.04em;line-height:1.5}
+  .s-close .ask .item b{color:var(--yellow);font-weight:600;display:block;text-transform:uppercase;letter-spacing:0.16em;font-size:10px;margin-bottom:6px}
+  .s-close .stack-strip{
+    margin-top:28px;padding:14px 0;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);
+    display:flex;gap:24px;flex-wrap:wrap;align-items:center;
+    font-family:"Geist Mono",monospace;font-size:11px;letter-spacing:0.16em;color:var(--text-3);text-transform:uppercase;
+  }
+  .s-close .stack-strip span{color:var(--text-2)}
+  .s-close .stack-strip span.y{color:var(--yellow)}
+  .s-close .stack-strip .lbl{color:var(--yellow);font-weight:600}
+  .s-close .end{
+    margin-top:36px;display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:24px;
+    font-family:"Geist Mono",monospace;font-size:11px;color:var(--text-3);letter-spacing:0.16em;text-transform:uppercase;
+  }
+  .s-close .end .big{font-size:56px;color:var(--yellow);font-weight:700;letter-spacing:-0.04em;text-shadow:0 0 30px var(--yellow-glow);line-height:1}
+  .s-close .end .right{text-align:right}
+
+  /* responsive */
+  @media (max-width:980px){
+    .slide{padding:80px 5vw 80px}
+    .s-problem .grid,.s-product .grid,.s-demo .grid,.s-market .top,.s-moat .grid{grid-template-columns:1fr;gap:24px}
+    .s-market .arrs,.s-moat .why{grid-template-columns:1fr}
+    .s-close .ask{grid-template-columns:1fr}
+    h1{font-size:clamp(48px,11vw,90px)}
+  }
+
+  /* Help overlay */
+  .help{position:fixed;inset:0;z-index:200;background:rgba(7,7,7,0.92);backdrop-filter:blur(8px);display:none;place-items:center}
+  .help.on{display:grid}
+  .help .panel{background:var(--bg-2);border:1px solid var(--yellow);padding:28px;max-width:480px;box-shadow:0 0 80px var(--yellow-glow)}
+  .help h3{font-family:"Geist Mono",monospace;font-size:15px;color:var(--yellow);margin-bottom:16px;letter-spacing:0.06em}
+  .help .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--line-2);font-family:"Geist Mono",monospace;font-size:12px;color:var(--text-2)}
+  .help .row:last-child{border:none}
+  .help .row b{color:var(--text)}
+  .help kbd{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;background:var(--bg-3);border:1px solid var(--line-2);color:var(--text);font-family:inherit;font-size:10px;margin:0 2px}
+</style>
+</head>
+<body>
+
+<div class="progress"><div class="bar" id="bar" style="width:14.28%"></div></div>
+<div class="hud-top" aria-hidden="true">
+  <div class="left">
+    <span class="dot"></span>
+    <span><b>STATUS</b> :: PRESENTATION_LIVE</span>
+    <span><b>BUILD</b> v2026.04.26</span>
+  </div>
+  <div class="right">
+    <span><b>UST_3M</b> <span class="y">5.21%</span></span>
+    <span><b>ECB_DEP</b> 3.50%</span>
+    <span><b>AUM</b> €42.6M</span>
+  </div>
+</div>
+
+<div class="deck" id="deck">
+
+  <!-- 01 :: TITLE -->
+  <section class="slide s-title" data-id="01" data-name="title">
+    <div class="marker"><span class="id">SLIDE_01</span><span>cover</span></div>
+    <div class="slide-inner">
+      <div class="brand anim anim-1">
+        <span class="brand-mark">T</span>
+        <span class="brand-name">treasury<span class="y">/</span>ai</span>
+      </div>
+      <h1 class="anim anim-2">
+        <span class="ln">mercury</span>
+        <span class="ln">treasury <span class="lo">// for</span></span>
+        <span class="ln y">europe.</span>
+      </h1>
+      <div class="meta anim anim-4">
+        <div class="col"><small>// MADHACK · MADRID</small><span>28 · APR · 2026</span></div>
+        <div class="col"><small>// STACK</small><span>ALPACA · ORCA · LANGGRAPH · CLAUDE</span></div>
+        <div class="col"><small>// PITCH</small><span>~3 MIN + LIVE DEMO</span></div>
+      </div>
+    </div>
+    <div class="corner anim anim-3"><div>EARN<br/><span class="big">4%+</span>ON IDLE<br/><b>STARTUP CASH</b></div></div>
+  </section>
+
+  <!-- 02 :: PROBLEM -->
+  <section class="slide s-problem" data-id="02" data-name="the_problem">
+    <div class="marker"><span class="id">SLIDE_02</span><span>the gap</span></div>
+    <div class="slide-inner">
+      <div class="grid">
+        <div>
+          <span class="eyebrow anim anim-1">// the problem</span>
+          <h2 class="anim anim-2" style="margin-top:14px">EVERY SERIES A<br/>LOSES <span class="hl">~3% / YR</span><br/>TO INFLATION.</h2>
+          <p class="lead anim anim-3" style="margin-top:18px"><b>€1.5T+</b> in EU operating cash earning &lt;1%. T-bills currently pay 4%+. The gap is real money — and no one captures it because opening a brokerage and writing an IPS is six weeks of work.</p>
+          <div class="reasons anim anim-4">
+            <div class="reason"><span class="x">✗</span><span><b>Brokerage account</b> · weeks of paperwork</span></div>
+            <div class="reason"><span class="x">✗</span><span><b>Investment policy</b> · board-level conversation</span></div>
+            <div class="reason"><span class="x">✗</span><span><b>Cashflow forecasting</b> · CFO they can't afford</span></div>
+            <div class="reason"><span class="x">✗</span><span><b>Monthly rebalancing</b> · brain damage</span></div>
+          </div>
+        </div>
+        <div class="stat-frame anim anim-5">
+          <div class="row neg"><span>CHECKING @ 0.5% (3YR)</span><b>+€45k</b></div>
+          <div class="row neg"><span>INFLATION DRAG @ 3%</span><b>−€270k</b></div>
+          <div class="row pos"><span>T-BILLS @ 4.28% (3YR)</span><b>+€385k</b></div>
+          <div class="gap">
+            <div class="l">// MISSING YIELD · €3M / YR</div>
+            <div class="n">+€105k</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 :: PRODUCT -->
+  <section class="slide s-product" data-id="03" data-name="the_product">
+    <div class="marker"><span class="id">SLIDE_03</span><span>the product</span></div>
+    <div class="slide-inner">
+      <div class="grid">
+        <div>
+          <span class="eyebrow anim anim-1">// the product</span>
+          <h2 class="anim anim-2" style="margin-top:14px">A MULTI-AGENT<br/>AI <span class="y">TREASURER.</span></h2>
+          <p class="lead anim anim-3" style="margin-top:14px">Customer chats with one. <b>Six specialists</b> collaborate behind the scenes — each mirrors a real corporate treasury function. Built for the Orca mesh: <b>every agent queryable individually.</b></p>
+          <div class="agent-list anim anim-4">
+            <div class="agent-row"><div class="role">forecaster</div><div class="desc">Reads bank txns · projects cashflow.</div></div>
+            <div class="agent-row"><div class="role">strategist</div><div class="desc">Builds T-bill ladder on live yields.</div></div>
+            <div class="agent-row"><div class="role">risk_officer</div><div class="desc">Enforces IPS · hard veto.</div></div>
+            <div class="agent-row"><div class="role">executor</div><div class="desc">Places paper trades on Alpaca.</div></div>
+            <div class="agent-row"><div class="role">cfo_synth</div><div class="desc">One-paragraph plain-English reply.</div></div>
+          </div>
+          <div class="gate anim anim-5">🔒 <b>APPROVAL GATE</b> :: every trade needs explicit founder confirmation.</div>
+        </div>
+        <div class="topology anim anim-4" aria-hidden="true">
+          <svg viewBox="0 0 600 600">
+            <defs>
+              <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#E8FF00" stop-opacity="0.25"/>
+                <stop offset="100%" stop-color="#E8FF00" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <circle cx="300" cy="300" r="280" fill="url(#halo)"/>
+            <circle cx="300" cy="300" r="248" fill="none" stroke="rgba(232,255,0,0.18)" stroke-dasharray="2 6"/>
+            <circle cx="300" cy="300" r="190" fill="none" stroke="rgba(232,255,0,0.10)"/>
+            <g class="links">
+              <line class="link" x1="300" y1="300" x2="300" y2="92"/>
+              <line class="link" x1="300" y1="300" x2="486" y2="190"/>
+              <line class="link" x1="300" y1="300" x2="486" y2="410"/>
+              <line class="link" x1="300" y1="300" x2="300" y2="508"/>
+              <line class="link" x1="300" y1="300" x2="114" y2="410"/>
+              <line class="link" x1="300" y1="300" x2="114" y2="190"/>
+            </g>
+            <g>
+              <g transform="translate(300,92)"><circle class="node-circle" r="46"/><text class="node-label" text-anchor="middle" dy="-3">FORECASTER</text><text class="node-label" text-anchor="middle" dy="12" fill="#E8FF00" font-size="9">cashflow</text></g>
+              <g transform="translate(486,190)"><circle class="node-circle" r="46"/><text class="node-label" text-anchor="middle" dy="-3">STRATEGIST</text><text class="node-label" text-anchor="middle" dy="12" fill="#E8FF00" font-size="9">build_ladder</text></g>
+              <g transform="translate(486,410)"><circle class="node-circle" r="46"/><text class="node-label" text-anchor="middle" dy="-3">RISK</text><text class="node-label" text-anchor="middle" dy="12" fill="#E8FF00" font-size="9">policy_veto</text></g>
+              <g transform="translate(300,508)"><circle class="node-circle" r="46"/><text class="node-label" text-anchor="middle" dy="-3">EXECUTOR</text><text class="node-label" text-anchor="middle" dy="12" fill="#E8FF00" font-size="9">paper_trade</text></g>
+              <g transform="translate(114,410)"><circle class="node-circle" r="46"/><text class="node-label" text-anchor="middle" dy="-3">PORTFOLIO</text><text class="node-label" text-anchor="middle" dy="12" fill="#E8FF00" font-size="9">read_state</text></g>
+              <g transform="translate(114,190)"><circle class="node-circle" r="46"/><text class="node-label" text-anchor="middle" dy="-3">SYNTHESIS</text><text class="node-label" text-anchor="middle" dy="12" fill="#E8FF00" font-size="9">narrate</text></g>
+              <g transform="translate(300,300)">
+                <circle class="node-cfo" r="64"/>
+                <text class="node-label" text-anchor="middle" dy="-6" font-size="11" fill="#E8FF00">CFO_ROUTER</text>
+                <text class="node-label" text-anchor="middle" dy="10" font-size="9" fill="#9A9A9A">orchestrator</text>
+                <circle r="3" cx="0" cy="0" class="pulse">
+                  <animate attributeName="r" values="3;42;3" dur="3.4s" repeatCount="indefinite"/>
+                  <animate attributeName="opacity" values="0.7;0;0.7" dur="3.4s" repeatCount="indefinite"/>
+                </circle>
+              </g>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 :: DEMO -->
+  <section class="slide s-demo" data-id="04" data-name="live_demo">
+    <div class="marker"><span class="id">SLIDE_04</span><span>live demo</span></div>
+    <div class="slide-inner">
+      <div class="grid">
+        <div>
+          <span class="eyebrow anim anim-1">// live demo</span>
+          <h2 class="anim anim-2" style="margin-top:14px">SIX QUERIES.<br/>ONE <span class="y">BOARD-READY</span><br/>OUTCOME.</h2>
+          <p class="lead anim anim-3" style="margin-top:14px">Real chat. Real Alpaca paper trades. Real Risk Officer veto.</p>
+          <div class="wow anim anim-5">★ <b>WOW</b> :: risk_officer rejects &amp; forces revision. Looks like an institution debating internally.</div>
+        </div>
+        <div class="terminal anim anim-4">
+          <div class="term-bar">
+            <span class="dots"><i></i><i></i><i></i></span>
+            <span style="margin-left:8px">treasury_ai</span>
+            <span class="path">~/demo/<b>session.log</b></span>
+          </div>
+          <div class="term-body">
+            <div class="u">show me where my cash is.</div>
+            <div class="a">portfolio → <b style="color:var(--text)">$325k bank · $0 invested</b></div>
+            <div class="u" style="margin-top:6px">burn rate &amp; deployable?</div>
+            <div class="a">forecaster → <b style="color:var(--text)">€280k/mo · €2.1M deployable</b></div>
+            <div class="u" style="margin-top:6px">we got $50k extra. what now?</div>
+            <div class="a">strategist → ladder built</div>
+            <div class="a veto">risk_officer → over_concentration</div>
+            <div class="a y">strategist → revising…</div>
+            <div class="a ok">cfo → proposal ready · approve?</div>
+            <div class="u" style="margin-top:6px">approve</div>
+            <div class="a ok">executor → 4 fills · receipt #A07-2026<span class="cur"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 :: MARKET -->
+  <section class="slide s-market" data-id="05" data-name="market">
+    <div class="marker"><span class="id">SLIDE_05</span><span>market</span></div>
+    <div class="slide-inner">
+      <div class="top">
+        <div>
+          <span class="eyebrow anim anim-1">// market</span>
+          <div class="big anim anim-2">€1.5T+</div>
+          <div class="label anim anim-3">EU OPERATING CASH · EARNING <b>&lt; 1%</b></div>
+        </div>
+        <div class="anim anim-4" style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--text-2);line-height:1.55">
+          <b style="color:var(--text);text-transform:uppercase;letter-spacing:0.04em">// US comparable</b><br/>
+          mercury treasury captured <span class="y" style="font-size:18px;font-weight:600">$4B AUM</span> in <b>2 years</b> post-svb.<br/><br/>
+          europe has no equivalent.<br/>
+          <span class="y">// vacant market.</span>
+        </div>
+      </div>
+      <div class="arrs anim anim-5">
+        <div class="arr">
+          <div class="k">// 0.1% share</div>
+          <div class="v">$30M ARR</div>
+          <div class="d">@ 20 bps · 24 months</div>
+        </div>
+        <div class="arr y">
+          <div class="k">// 1% share</div>
+          <div class="v">$300M ARR</div>
+          <div class="d">@ 20 bps · medium-term</div>
+        </div>
+        <div class="arr">
+          <div class="k">// gross margin</div>
+          <div class="v">~90%</div>
+          <div class="d">software fee on AUM</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06 :: GTM + MOAT -->
+  <section class="slide s-moat" data-id="06" data-name="gtm_moat">
+    <div class="marker"><span class="id">SLIDE_06</span><span>gtm + moat</span></div>
+    <div class="slide-inner">
+      <span class="eyebrow anim anim-1">// gtm + moat</span>
+      <h2 class="anim anim-2" style="margin-top:14px">TWO PHASES.<br/><span class="y">FOUR MOATS.</span></h2>
+      <div class="grid">
+        <div class="anim anim-3">
+          <div class="phase">
+            <div class="tag">// PHASE 01 · MONTHS 0–18</div>
+            <h3>direct to startups</h3>
+            <p><b>VC portfolios · accelerators · founder content.</b> 20 bps flat, no minimum. Target: 100–500 customers, $100M–$500M AUM.</p>
+          </div>
+          <div class="phase p2">
+            <div class="tag">// PHASE 02 · MONTHS 18+</div>
+            <h3>white-label embed</h3>
+            <p>Embed in <b>qonto · revolut · pleo · spendesk · payhawk.</b> Single embed unlocks 10k+ accounts overnight. 25/75 rev share.</p>
+          </div>
+        </div>
+        <div class="why anim anim-4">
+          <div class="card featured">
+            <div class="num">01</div>
+            <h4>30-min onboarding</h4>
+            <div class="sub">vs <b>weeks</b> at private banks</div>
+          </div>
+          <div class="card featured">
+            <div class="num">02</div>
+            <h4>eu-native</h4>
+            <div class="sub">vs <b>mercury (us-only)</b></div>
+          </div>
+          <div class="card">
+            <div class="num">03</div>
+            <h4>20 bps flat</h4>
+            <div class="sub">vs 50–150 bps wealth mgmt</div>
+          </div>
+          <div class="card">
+            <div class="num">04</div>
+            <h4>embeddable</h4>
+            <div class="sub">long-term distribution moat</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07 :: CLOSING -->
+  <section class="slide s-close" data-id="07" data-name="closing">
+    <div class="marker"><span class="id">SLIDE_07</span><span>closing</span></div>
+    <div class="slide-inner">
+      <span class="eyebrow anim anim-1">// closing</span>
+      <div class="quote anim anim-2" style="margin-top:18px">
+        STRIPE IS AN <span class="y">API</span> FOR PAYMENTS.<br/>
+        ALPACA IS AN <span class="y">API</span> FOR INVESTING.<br/>
+        WE'RE THE <span class="y">AI AGENT LAYER</span> ON TOP.
+      </div>
+      <div class="ask anim anim-3">
+        <div class="item"><b>// shipping</b>Prototype live today. 6-agent LangGraph + Alpaca paper-trades behind one chat.</div>
+        <div class="item"><b>// looking for</b>One design partner (Series A, €500k+ idle) + one fintech distribution partner.</div>
+        <div class="item"><b>// the math</b>TAM €1.5T. Mercury did $4B in 2 years post-SVB. Europe is wide open.</div>
+      </div>
+      <div class="stack-strip anim anim-4">
+        <span class="lbl">// BUILT ON</span>
+        <span class="y">ALPACA</span>·<span class="y">ORCA</span>·<span>LANGGRAPH</span>·<span>MCP</span>·<span>CLAUDE SONNET 4.6</span>·<span>FASTAPI</span>
+      </div>
+      <div class="end anim anim-5">
+        <div><div class="big">LET'S<br/>GO.</div></div>
+        <div class="right">
+          <span style="display:block;color:var(--text-2);margin-bottom:6px">treasury<span class="y">/ai</span></span>
+          <span style="display:block">marco · neurons-lab · madrid</span>
+          <span style="display:block;color:var(--yellow)">// thank you · q&amp;a →</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<div class="hud-bot">
+  <div class="left">
+    <span class="key"><span class="kbd">←</span><span class="kbd">→</span> NAVIGATE</span>
+    <span class="key"><span class="kbd">SPACE</span> NEXT</span>
+    <span class="key"><span class="kbd">F</span> FULLSCREEN</span>
+    <span class="key"><span class="kbd">?</span> HELP</span>
+  </div>
+  <div class="center">
+    <button id="prevBtn">← prev</button>
+    <span class="ctr"><b id="curIdx">01</b> / <span id="totIdx">07</span> · <span id="curName">title</span></span>
+    <button id="nextBtn">next →</button>
+  </div>
+  <div class="right">
+    <span><b>treasury</b><span class="y">/ai</span></span>
+    <span>· madhack 2026</span>
+  </div>
+</div>
+
+<div class="help" id="help">
+  <div class="panel">
+    <h3>// keyboard shortcuts</h3>
+    <div class="row"><span>next</span><b><kbd>→</kbd> <kbd>↓</kbd> <kbd>SPACE</kbd> <kbd>ENTER</kbd></b></div>
+    <div class="row"><span>previous</span><b><kbd>←</kbd> <kbd>↑</kbd> <kbd>BACKSPACE</kbd></b></div>
+    <div class="row"><span>first / last</span><b><kbd>HOME</kbd> <kbd>END</kbd></b></div>
+    <div class="row"><span>jump 1–7</span><b><kbd>1</kbd>–<kbd>7</kbd></b></div>
+    <div class="row"><span>fullscreen</span><b><kbd>F</kbd></b></div>
+    <div class="row"><span>help</span><b><kbd>?</kbd> <kbd>H</kbd></b></div>
+    <div class="row"><span>close</span><b><kbd>ESC</kbd></b></div>
+  </div>
+</div>
+
+<script>
+  const deck = document.getElementById('deck');
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total = slides.length;
+  const bar = document.getElementById('bar');
+  const curIdx = document.getElementById('curIdx');
+  const totIdx = document.getElementById('totIdx');
+  const curName = document.getElementById('curName');
+  const help = document.getElementById('help');
+  let i = 0;
+
+  totIdx.textContent = String(total).padStart(2,'0');
+  const pad = (n) => String(n).padStart(2,'0');
+
+  function go(n){
+    i = Math.max(0, Math.min(total - 1, n));
+    deck.style.transform = `translateX(-${i*100}vw)`;
+    bar.style.width = ((i+1)/total*100) + '%';
+    curIdx.textContent = pad(i+1);
+    curName.textContent = slides[i].dataset.name.replace(/_/g,' ');
+    slides.forEach((s,idx)=> s.classList.toggle('active', idx===i));
+    history.replaceState(null,'','#'+(i+1));
+  }
+  const next = ()=>go(i+1);
+  const prev = ()=>go(i-1);
+
+  document.addEventListener('keydown', (e) => {
+    if (help.classList.contains('on') && e.key === 'Escape') { help.classList.remove('on'); return }
+    if (['ArrowRight','ArrowDown','PageDown',' ','Enter'].includes(e.key)) { e.preventDefault(); next() }
+    else if (['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)) { e.preventDefault(); prev() }
+    else if (e.key === 'Home') go(0);
+    else if (e.key === 'End') go(total-1);
+    else if (e.key === '?' || e.key.toLowerCase() === 'h') help.classList.toggle('on');
+    else if (e.key.toLowerCase() === 'f') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+      else document.exitFullscreen?.();
+    }
+    else if (/^[1-7]$/.test(e.key)) go(parseInt(e.key,10)-1);
+  });
+
+  document.getElementById('nextBtn').addEventListener('click', next);
+  document.getElementById('prevBtn').addEventListener('click', prev);
+
+  deck.addEventListener('click', (e) => {
+    if (e.target.closest('button,a,input,select,textarea')) return;
+    if (e.clientX < window.innerWidth*0.3) prev();
+    else if (e.clientX > window.innerWidth*0.7) next();
+  });
+
+  let tx = null;
+  deck.addEventListener('touchstart', e => { tx = e.changedTouches[0].screenX });
+  deck.addEventListener('touchend', e => {
+    if (tx === null) return;
+    const dx = e.changedTouches[0].screenX - tx;
+    if (Math.abs(dx) > 60) { if (dx < 0) next(); else prev(); }
+    tx = null;
+  });
+
+  const hash = parseInt(location.hash.replace('#',''),10);
+  if (!isNaN(hash) && hash >= 1 && hash <= total) i = hash-1;
+  go(i);
+
+  help.addEventListener('click', (e) => { if (e.target === help) help.classList.remove('on') });
+</script>
+</body>
+</html>

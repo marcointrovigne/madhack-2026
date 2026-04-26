@@ -1,0 +1,16 @@
+services:
+  bank-account-mock:
+    build: .
+    environment:
+      - BANK_MOCK_DB_PATH=/app/data/bank_mock.sqlite3
+      - BANK_MOCK_SEED_COUNT=250
+      - BANK_MOCK_SEED_DEMO_COMPANIES=true
+      - BANK_MOCK_SEED_MAIN_COMPANY=true
+      - BANK_MOCK_MAIN_COMPANY_HISTORY_YEARS=3
+    volumes:
+      - bank-mock-data:/app/data
+    ports:
+      - "8010:8010"
+
+volumes:
+  bank-mock-data:

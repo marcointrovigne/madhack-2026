@@ -1,0 +1,69 @@
+# Treasury AI — Investment Policy Statement (IPS)
+# Loaded by Risk_Officer agent. Defines hard rules every proposed allocation
+# must satisfy. The agent has veto power on proposals that violate these rules.
+
+policy_name: "Acme Conservative Treasury Policy"
+policy_version: "1.0"
+last_review_date: "2026-04-01"
+
+# What's allowed and what's strictly forbidden
+allowed_asset_classes:
+  - t-bills
+  - t-bill-etfs
+  - treasury-etfs
+  - money-market-funds
+
+forbidden_asset_classes:
+  - equities
+  - corporate-bonds
+  - high-yield-bonds
+  - crypto
+  - derivatives
+  - leveraged-etfs
+  - inverse-etfs
+  - emerging-markets
+
+# Whitelist of specific tickers Strategist may propose
+allowed_tickers:
+  SGOV:
+    description: "iShares 0-3 Month Treasury Bond ETF"
+    duration_bucket: "0-3mo"
+    duration_months: 1.5
+    credit_rating: "AAA"
+  BIL:
+    description: "SPDR Bloomberg 1-3 Month T-Bill ETF"
+    duration_bucket: "1-3mo"
+    duration_months: 2
+    credit_rating: "AAA"
+  SHV:
+    description: "iShares Short Treasury Bond ETF"
+    duration_bucket: "3-12mo"
+    duration_months: 6
+    credit_rating: "AAA"
+  SHY:
+    description: "iShares 1-3 Year Treasury Bond ETF"
+    duration_bucket: "12-36mo"
+    duration_months: 24
+    credit_rating: "AAA"
+
+# Hard limits — any violation triggers REJECT
+risk_limits:
+  max_pct_single_etf: 60       # No single ETF can exceed 60% of allocation
+  max_duration_months: 18      # Weighted-avg duration cap
+  min_credit_rating: "AA"      # All instruments must be AA or above
+  max_total_lockup_pct: 70     # At most 70% can be locked >3 months
+
+# Liquidity requirements
+liquidity_requirements:
+  min_daily_liquidity_pct: 30  # Minimum 30% in 0-3mo instruments (T+1 settle)
+  required_buffer_months: 3    # Operating cash buffer = 3 months of burn
+
+# Reporting and review
+reporting:
+  frequency: "monthly"
+  recipients: ["board", "founder"]
+  format: ["markdown_summary", "csv_holdings"]
+
+review:
+  policy_review_cadence_months: 6
+  rebalance_review_cadence_months: 1

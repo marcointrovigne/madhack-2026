@@ -1,0 +1,52 @@
+# Treasury AI — Customer Company Profile
+# Loaded at session start. Provides static context every agent uses.
+# In production this comes from the customer's onboarding flow.
+
+company:
+  name: "Acme"
+  legal_name: "Acme Software SL"
+  jurisdiction: "Spain"
+  client_id: "main-company"     # Matches MCP bank seed
+  bank: "Qonto"
+  currency: "USD"               # Demo runs in USD; prod handles FX EUR↔USD on wire
+  industry: "SaaS"
+  employees: 20
+  founded_year: 2023
+
+financials:
+  stage: "Series A"
+  approx_balance_usd: 325000    # Initial balance per MCP seed (will be read live)
+  monthly_burn_usd: 65000       # Average ops + payroll
+  monthly_payroll_usd: 38000
+  approx_runway_months: 12
+  recent_funding:
+    round: "Series A"
+    amount_usd: 4000000
+    closed: "2026-Q1"
+    investor: "Kfund"
+
+planned_outflows:
+  - description: "Office buildout (Madrid HQ)"
+    amount_usd: 600000
+    expected_date: "2026-09-15"
+    confidence: "high"
+  - description: "Engineering hires (4 people)"
+    amount_usd_per_month: 32000
+    starting_date: "2026-07-01"
+    duration_months: null  # ongoing
+    confidence: "medium"
+
+contacts:
+  primary:
+    name: "Pablo Mendez"
+    role: "Founder/CEO"
+    email: "pablo@acme.example"
+
+# Treasury-specific context
+treasury_context:
+  policy_file: "config/policy.yaml"
+  alpaca_paper: true
+  notes: |
+    Acme just closed Series A. Founder-led finance — no CFO yet.
+    Wants conservative T-bill exposure, full transparency, easy withdraw
+    if cash needed for ops or hiring. Board reviewed and approved policy.

@@ -1,0 +1,22 @@
+{
+  "client_id": "main-company",
+  "opening_balance": "325000.00",
+  "policy": "balanced",
+  "operating_reserve": "180000.00",
+  "reinvestment_reserve": "60000.00",
+  "dca_amount": "15000.00",
+  "min_guard_balance": "85000.00",
+  "daily_revenue_min": 2200,
+  "daily_revenue_max": 11500,
+  "daily_ops_min": 900,
+  "daily_ops_max": 4800,
+  "payroll_min": 26000,
+  "payroll_max": 48000,
+  "tax_min": 12000,
+  "tax_max": 30000,
+  "financing_min": 150000,
+  "financing_max": 350000,
+  "safeguard_min": 90000,
+  "safeguard_max": 180000,
+  "random_seed": 26
+}

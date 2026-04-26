@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Treasury AI // Earn 4% on idle cash. Automatically.</title>
+<meta name="description" content="AI treasurer for European startups. Earn 4%+ on idle cash with a T-bill ladder managed by a multi-agent AI. 20 bps. No minimum. Setup in 30 minutes." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600;700&family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#070707;
+    --bg-2:#0C0C0C;
+    --bg-3:#121212;
+    --bg-4:#1A1A1A;
+    --line:#1F1F1F;
+    --line-2:#2A2A2A;
+    --text:#F2F2F2;
+    --text-2:#9A9A9A;
+    --text-3:#5A5A5A;
+    --text-4:#3A3A3A;
+    --yellow:#E8FF00;
+    --yellow-2:#F4FF66;
+    --yellow-dim:rgba(232,255,0,0.12);
+    --yellow-glow:rgba(232,255,0,0.35);
+    --red:#FF3D3D;
+    --green:#3DFF8B;
+    --max:1320px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{background:var(--bg)}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:"Geist",-apple-system,system-ui,sans-serif;
+    font-size:15px;line-height:1.5;font-weight:400;
+    letter-spacing:-0.005em;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  /* Global grid background */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size:48px 48px;
+    background-position:-1px -1px;
+    mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image:radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+  /* Subtle scan line */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+    background:repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 3px);
+    mix-blend-mode:overlay;opacity:.5;
+  }
+  ::selection{background:var(--yellow);color:#000}
+
+  .mono,.tag,.kbd,h1,h2,h3,.eyebrow,.ascii{font-family:"Geist Mono","JetBrains Mono",ui-monospace,monospace;font-feature-settings:"calt","ss02"}
+  .ascii{font-family:"JetBrains Mono",monospace;white-space:pre;color:var(--text-3);font-size:11px;line-height:1.1;letter-spacing:0}
+  .eyebrow{
+    font-family:"Geist Mono",monospace;font-size:11px;letter-spacing:0.16em;
+    text-transform:uppercase;color:var(--text-3);
+    display:inline-flex;align-items:center;gap:10px;
+  }
+  .eyebrow::before{content:"//";color:var(--yellow)}
+  .tag{
+    display:inline-block;font-family:"Geist Mono",monospace;font-size:10px;
+    letter-spacing:0.16em;text-transform:uppercase;
+    padding:4px 8px;border:1px solid var(--line-2);color:var(--text-2);background:var(--bg-2);
+  }
+  .tag.y{border-color:var(--yellow);color:var(--yellow);background:var(--yellow-dim);text-shadow:0 0 10px var(--yellow-glow)}
+
+  h1,h2,h3{font-weight:500;letter-spacing:-0.02em;line-height:1}
+  h1{font-weight:600}
+  .hl{
+    background:var(--yellow);color:#000;padding:0 .12em;
+    box-shadow:0 0 28px var(--yellow-glow), 0 0 4px rgba(232,255,0,0.6);
+    box-decoration-break:clone;-webkit-box-decoration-break:clone;
+  }
+  .y{color:var(--yellow);text-shadow:0 0 18px var(--yellow-glow)}
+  .strike{position:relative;display:inline-block}
+  .strike::after{content:"";position:absolute;left:-2%;right:-2%;top:54%;height:3px;background:var(--yellow);box-shadow:0 0 20px var(--yellow-glow);transform:scaleX(0);transform-origin:left;animation:strike 1.1s 1s cubic-bezier(.2,.7,.2,1) forwards}
+  @keyframes strike{to{transform:scaleX(1)}}
+
+  /* Layout */
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 28px;position:relative;z-index:2}
+  section{padding:120px 0;position:relative;border-top:1px solid var(--line)}
+  section:first-of-type{border-top:none}
+
+  /* Buttons */
+  .btn{
+    display:inline-flex;align-items:center;gap:10px;padding:14px 20px;
+    font-family:"Geist Mono",monospace;font-size:12px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;
+    text-decoration:none;cursor:pointer;border:1px solid var(--line-2);background:transparent;color:var(--text);
+    transition:all .2s cubic-bezier(.2,.7,.2,1);position:relative;
+  }
+  .btn:hover{background:var(--bg-3);border-color:var(--text-2)}
+  .btn .arrow{transition:transform .2s cubic-bezier(.2,.7,.2,1)}
+  .btn:hover .arrow{transform:translateX(4px)}
+  .btn.primary{background:var(--yellow);color:#000;border-color:var(--yellow);box-shadow:0 0 0 0 var(--yellow-glow)}
+  .btn.primary:hover{background:var(--yellow-2);border-color:var(--yellow-2);box-shadow:0 0 32px var(--yellow-glow)}
+  .btn.ghost{background:transparent;color:var(--text);border-color:var(--line-2)}
+  .btn.ghost:hover{color:var(--yellow);border-color:var(--yellow);box-shadow:0 0 24px var(--yellow-glow)}
+
+  /* TOP STATUS BAR */
+  .statusbar{
+    background:var(--bg);border-bottom:1px solid var(--line);
+    font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.12em;
+    color:var(--text-3);text-transform:uppercase;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:7px 28px;position:relative;z-index:30;
+  }
+  .statusbar .left,.statusbar .right{display:flex;gap:18px;align-items:center}
+  .statusbar .dot{width:6px;height:6px;background:var(--yellow);border-radius:50%;box-shadow:0 0 10px var(--yellow-glow);animation:blink 1.6s infinite}
+  .statusbar b{color:var(--text-2);font-weight:500}
+  .statusbar .y{color:var(--yellow);text-shadow:none}
+  @keyframes blink{50%{opacity:.35}}
+  @media (max-width:780px){.statusbar .right{display:none}}
+
+  /* TICKER */
+  .ticker{
+    background:var(--bg-2);color:var(--text-2);border-bottom:1px solid var(--line);
+    overflow:hidden;font-family:"Geist Mono",monospace;font-size:11px;letter-spacing:0.06em;
+    position:relative;z-index:30;
+  }
+  .ticker-track{display:flex;gap:42px;padding:9px 0;white-space:nowrap;animation:ticker 80s linear infinite}
+  .ticker-track .up{color:var(--green)}
+  .ticker-track .down{color:var(--red)}
+  .ticker-track .lbl{color:var(--yellow)}
+  @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* NAV */
+  .nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(7,7,7,0.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
+  .brand-mark{
+    width:32px;height:32px;background:var(--yellow);color:#000;
+    display:grid;place-items:center;font-family:"Geist Mono",monospace;font-weight:700;
+    font-size:14px;letter-spacing:-0.04em;
+    box-shadow:0 0 24px var(--yellow-glow);
+  }
+  .brand-name{font-family:"Geist Mono",monospace;font-size:14px;font-weight:600;letter-spacing:0.02em;text-transform:uppercase}
+  .brand-name span{color:var(--yellow)}
+  .nav-links{display:flex;gap:28px;align-items:center}
+  .nav-links a{color:var(--text-2);text-decoration:none;font-family:"Geist Mono",monospace;font-size:12px;font-weight:500;letter-spacing:0.04em;text-transform:uppercase}
+  .nav-links a:hover{color:var(--yellow)}
+  .nav-cta{display:flex;gap:10px;align-items:center}
+  @media (max-width:880px){.nav-links{display:none}}
+
+  /* HERO */
+  .hero{padding:80px 0 100px;position:relative;border-top:none}
+  .hero::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(900px 500px at 80% 20%, rgba(232,255,0,0.07), transparent 60%),
+      radial-gradient(700px 400px at 10% 80%, rgba(232,255,0,0.04), transparent 60%);
+  }
+  .hero-head{display:grid;grid-template-columns:1fr;gap:32px;position:relative}
+  .hero h1{
+    font-family:"Geist Mono",monospace;
+    font-size:clamp(48px,9vw,140px);
+    font-weight:600;letter-spacing:-0.045em;line-height:0.92;
+    text-transform:uppercase;
+  }
+  .hero h1 .ln{display:block}
+  .hero h1 .lo{color:var(--text-3)}
+  .hero-sub{
+    display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:start;
+    margin-top:48px;padding-top:32px;border-top:1px solid var(--line);
+  }
+  .hero-sub .lead{font-family:"Geist",sans-serif;font-size:18px;line-height:1.5;color:var(--text-2);max-width:46ch}
+  .hero-sub .lead b{color:var(--text);font-weight:600}
+  .hero-cta{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+  .hero-meta{font-family:"Geist Mono",monospace;font-size:11px;color:var(--text-3);letter-spacing:0.12em;text-transform:uppercase;margin-top:24px;display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .hero-meta .ok::before{content:"●";color:var(--green);margin-right:6px}
+  .hero-meta .y::before{content:"●";color:var(--yellow);margin-right:6px;text-shadow:0 0 8px var(--yellow-glow)}
+
+  /* Hero stat band */
+  .hero-stats{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+    margin-top:64px;border:1px solid var(--line-2);background:var(--bg-2);
+    position:relative;
+  }
+  .hero-stats::before{
+    content:"[ TREASURY_AI.LIVE ] :: SAMPLE = €3,000,000 :: 28-APR-2026";
+    position:absolute;top:-1px;left:24px;transform:translateY(-50%);
+    background:var(--bg);color:var(--text-3);
+    font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.18em;
+    padding:4px 10px;border:1px solid var(--line-2);
+  }
+  .hero-stat{padding:32px;border-right:1px solid var(--line-2);position:relative}
+  .hero-stat:last-child{border-right:none}
+  .hero-stat:nth-child(2){background:#0E0E0E}
+  .hero-stat .k{font-family:"Geist Mono",monospace;font-size:10px;color:var(--text-3);letter-spacing:0.16em;text-transform:uppercase;margin-bottom:14px;display:flex;justify-content:space-between}
+  .hero-stat .k .ind{color:var(--yellow)}
+  .hero-stat .v{font-family:"Geist Mono",monospace;font-size:48px;font-weight:600;letter-spacing:-0.03em;line-height:1;color:var(--text);font-variant-numeric:tabular-nums}
+  .hero-stat .v small{font-size:18px;color:var(--text-3);font-weight:500;margin-left:4px}
+  .hero-stat .d{font-size:12px;color:var(--text-3);margin-top:10px;font-family:"Geist Mono",monospace;letter-spacing:0.04em}
+  .hero-stat.feature{background:linear-gradient(135deg, rgba(232,255,0,0.08), transparent 70%)}
+  .hero-stat.feature .v{color:var(--yellow);text-shadow:0 0 24px var(--yellow-glow)}
+  .hero-stat.feature .k .ind::before{content:""}
+
+  /* TRUST */
+  .trust{margin-top:36px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-family:"Geist Mono",monospace;font-size:11px;color:var(--text-3);letter-spacing:0.06em;text-transform:uppercase}
+  .trust .pill{padding:5px 10px;border:1px solid var(--line-2);color:var(--text-2)}
+  .trust .pill.y{border-color:var(--yellow);color:var(--yellow);background:var(--yellow-dim);text-shadow:0 0 10px var(--yellow-glow)}
+
+  /* Section heading helpers */
+  .sec-head{display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:end;margin-bottom:64px}
+  .sec-head h2{font-family:"Geist Mono",monospace;font-size:clamp(42px,6.4vw,96px);font-weight:600;letter-spacing:-0.04em;text-transform:uppercase;line-height:0.94}
+  .sec-head .lead{font-family:"Geist",sans-serif;font-size:17px;color:var(--text-2);max-width:42ch;line-height:1.55}
+  @media (max-width:980px){.sec-head{grid-template-columns:1fr;gap:24px}}
+
+  /* PROBLEM + CALC */
+  .problem .col2{display:grid;grid-template-columns:1fr 1.15fr;gap:64px;align-items:center}
+  .problem h2{font-family:"Geist Mono",monospace;font-size:clamp(40px,5.6vw,84px);font-weight:600;letter-spacing:-0.04em;text-transform:uppercase;line-height:0.95}
+  .problem h2 .y{color:var(--yellow)}
+  .problem p{font-size:16px;line-height:1.6;color:var(--text-2);margin-top:20px;max-width:42ch}
+  .problem .stat{font-family:"Geist Mono",monospace;font-size:11px;color:var(--text-3);margin-top:24px;letter-spacing:0.08em;text-transform:uppercase}
+
+  /* TERMINAL CALC */
+  .calc{
+    background:var(--bg-2);border:1px solid var(--line-2);
+    position:relative;
+    box-shadow:0 30px 80px -30px rgba(232,255,0,0.08);
+  }
+  .calc-bar{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 14px;background:var(--bg-3);border-bottom:1px solid var(--line-2);
+    font-family:"Geist Mono",monospace;font-size:11px;color:var(--text-3);letter-spacing:0.06em;
+  }
+  .calc-bar .dots{display:flex;gap:6px}
+  .calc-bar .dots i{width:9px;height:9px;border-radius:50%;background:var(--text-4);display:block}
+  .calc-bar .dots i:nth-child(2){background:#3A3A3A}
+  .calc-bar .dots i:nth-child(3){background:var(--yellow);box-shadow:0 0 8px var(--yellow-glow)}
+  .calc-bar .path{margin-left:auto;color:var(--text-3)}
+  .calc-bar .path b{color:var(--yellow);font-weight:500}
+
+  .calc-body{padding:28px}
+  .calc h3{font-family:"Geist Mono",monospace;font-weight:500;font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-3);margin-bottom:20px}
+  .calc h3::before{content:"$ ";color:var(--yellow)}
+  .calc-row{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;padding:14px 0;border-bottom:1px dashed var(--line-2)}
+  .calc-row label{font-family:"Geist Mono",monospace;font-size:11px;color:var(--text-2);letter-spacing:0.1em;text-transform:uppercase}
+  .calc-row label::before{content:"› ";color:var(--yellow)}
+  .calc-row .ctrl{display:flex;align-items:center;gap:14px;min-width:300px}
+  .calc-row input[type=range]{
+    -webkit-appearance:none;appearance:none;width:200px;height:2px;background:var(--line-2);outline:none;
+  }
+  .calc-row input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:14px;height:14px;background:var(--yellow);cursor:pointer;border:0;
+    box-shadow:0 0 14px var(--yellow-glow);
+  }
+  .calc-row input[type=range]::-moz-range-thumb{width:14px;height:14px;background:var(--yellow);cursor:pointer;border:0;box-shadow:0 0 14px var(--yellow-glow)}
+  .calc-row .val{font-family:"Geist Mono",monospace;font-size:18px;color:var(--text);min-width:130px;text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
+  .calc-out{margin-top:24px;display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-2)}
+  .calc-out .box{padding:18px;background:var(--bg-2)}
+  .calc-out .box.bad{background:#0F0A0A;border-left:2px solid #5A1A1A}
+  .calc-out .box.good{background:#0F1208;border-left:2px solid var(--yellow);box-shadow:inset 0 0 60px rgba(232,255,0,0.05)}
+  .calc-out .lbl{font-family:"Geist Mono",monospace;font-size:10px;color:var(--text-3);letter-spacing:0.18em;text-transform:uppercase}
+  .calc-out .num{font-family:"Geist Mono",monospace;font-size:36px;font-weight:600;margin-top:8px;font-variant-numeric:tabular-nums;letter-spacing:-0.02em}
+  .calc-out .box.good .num{color:var(--yellow);text-shadow:0 0 24px var(--yellow-glow)}
+  .calc-out .num small{font-size:14px;color:var(--text-3);margin-left:4px;font-weight:500}
+  .calc-miss{
+    margin-top:18px;padding:20px;
+    background:linear-gradient(90deg, rgba(232,255,0,0.18), rgba(232,255,0,0.04));
+    border:1px solid var(--yellow);
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;
+    box-shadow:0 0 60px -20px var(--yellow-glow), inset 0 0 40px rgba(232,255,0,0.04);
+  }
+  .calc-miss .ml{font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:var(--yellow)}
+  .calc-miss .mn{font-family:"Geist Mono",monospace;font-size:48px;font-weight:600;color:var(--yellow);letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 0 32px var(--yellow-glow)}
+  .calc-miss .mn small{font-size:14px;color:var(--text-2);margin-left:6px}
+
+  /* HOW IT WORKS */
+  .how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2)}
+  .step{padding:36px 32px;border-right:1px solid var(--line-2);position:relative;background:var(--bg);transition:background .25s}
+  .step:last-child{border-right:none}
+  .step:hover{background:var(--bg-2)}
+  .step .num{font-family:"Geist Mono",monospace;font-size:11px;color:var(--text-3);letter-spacing:0.18em;text-transform:uppercase;display:flex;justify-content:space-between;margin-bottom:32px}
+  .step .num span:last-child{color:var(--yellow)}
+  .step .glyph{font-family:"Geist Mono",monospace;font-size:64px;font-weight:600;color:var(--yellow);letter-spacing:-0.05em;line-height:1;margin-bottom:18px;text-shadow:0 0 28px var(--yellow-glow)}
+  .step h3{font-family:"Geist Mono",monospace;font-size:22px;font-weight:600;text-transform:uppercase;margin-bottom:14px;letter-spacing:-0.01em}
+  .step p{color:var(--text-2);font-size:15px;line-height:1.6}
+  .step .meta{margin-top:18px;font-family:"Geist Mono",monospace;font-size:10px;color:var(--text-3);letter-spacing:0.12em;text-transform:uppercase}
+  .step .meta::before{content:"~ ";color:var(--yellow)}
+
+  /* WHO */
+  .who-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid var(--line-2);background:var(--line-2)}
+  .persona{
+    padding:32px;background:var(--bg-2);
+    position:relative;transition:background .25s;
+  }
+  .persona:hover{background:var(--bg-3)}
+  .persona-tag{font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--yellow);margin-bottom:14px}
+  .persona h3{font-family:"Geist Mono",monospace;font-size:22px;font-weight:600;text-transform:uppercase;margin-bottom:14px;letter-spacing:-0.01em}
+  .persona p{color:var(--text-2);font-size:15px;line-height:1.65}
+  .persona .icon{
+    position:absolute;top:32px;right:32px;width:38px;height:38px;border:1px solid var(--line-2);
+    display:grid;place-items:center;font-family:"Geist Mono",monospace;color:var(--text-3);font-size:12px;
+  }
+  .persona:hover .icon{border-color:var(--yellow);color:var(--yellow);box-shadow:0 0 16px var(--yellow-glow)}
+
+  /* AGENTS */
+  .agents{background:#040404}
+  .agents-head{display:grid;grid-template-columns:1.2fr 1fr;gap:48px;margin-bottom:56px;align-items:end}
+  .agents h2{font-family:"Geist Mono",monospace;font-size:clamp(42px,6.4vw,96px);font-weight:600;text-transform:uppercase;letter-spacing:-0.04em;line-height:0.94}
+  .agents h2 .y{color:var(--yellow)}
+  .agents-head p{color:var(--text-2);font-size:17px;line-height:1.6;max-width:42ch}
+  .agents-body{display:grid;grid-template-columns:1.05fr 1fr;gap:48px;align-items:center}
+
+  .topology{position:relative;width:100%;aspect-ratio:1/1;max-width:560px;margin:0 auto;background:radial-gradient(circle at center, rgba(232,255,0,0.08), transparent 60%)}
+  .topology svg{width:100%;height:100%;display:block}
+  .topology .node-label{font-family:"Geist Mono",monospace;font-size:10px;fill:var(--text);letter-spacing:0.06em;font-weight:500}
+  .topology .node-circle{fill:var(--bg-3);stroke:var(--yellow);stroke-width:1;filter:drop-shadow(0 0 6px rgba(232,255,0,0.25))}
+  .topology .node-cfo{fill:#0E0F00;stroke:var(--yellow);stroke-width:2;filter:drop-shadow(0 0 18px rgba(232,255,0,0.55))}
+  .topology .link{stroke:var(--yellow);stroke-width:1;opacity:.4;fill:none;stroke-dasharray:3 4}
+  .topology .pulse{fill:var(--yellow)}
+
+  .agent-list{display:grid}
+  .agent-row{display:grid;grid-template-columns:auto 1fr auto;gap:20px;padding:18px 0;border-bottom:1px dashed var(--line-2);align-items:center;transition:padding .25s}
+  .agent-row:hover{padding-left:8px}
+  .agent-row .role{font-family:"Geist Mono",monospace;color:var(--yellow);font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;min-width:170px;text-shadow:0 0 14px var(--yellow-glow)}
+  .agent-row .role::before{content:"› "}
+  .agent-row .desc{color:var(--text-2);font-size:14px;line-height:1.5}
+  .agent-row .file{font-family:"Geist Mono",monospace;font-size:10px;color:var(--text-4);letter-spacing:0.08em}
+  .agents-foot{margin-top:48px;text-align:center;font-family:"Geist Mono",monospace;font-size:24px;text-transform:uppercase;letter-spacing:0.02em;color:var(--text)}
+  .agents-foot .y{color:var(--yellow);text-shadow:0 0 18px var(--yellow-glow)}
+
+  /* SAFETY */
+  .pillars{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;border:1px solid var(--line-2);background:var(--line-2)}
+  .pillar{padding:36px 32px;background:var(--bg)}
+  .pillar:hover{background:var(--bg-2)}
+  .pillar .pill-icon{
+    width:46px;height:46px;border:1px solid var(--yellow);background:var(--yellow-dim);
+    display:grid;place-items:center;margin-bottom:20px;color:var(--yellow);
+    box-shadow:0 0 18px var(--yellow-glow), inset 0 0 12px rgba(232,255,0,0.1);
+  }
+  .pillar h3{font-family:"Geist Mono",monospace;font-size:18px;font-weight:600;text-transform:uppercase;margin-bottom:12px;letter-spacing:-0.005em}
+  .pillar p{color:var(--text-2);font-size:14px;line-height:1.65}
+
+  /* PRICING */
+  .pricing-grid{display:grid;grid-template-columns:1fr 1.05fr;gap:64px;align-items:center}
+  .pricing h2{font-family:"Geist Mono",monospace;font-size:clamp(80px,14vw,220px);line-height:.86;letter-spacing:-0.06em;font-weight:700}
+  .pricing h2 .bps{color:var(--yellow);text-shadow:0 0 40px var(--yellow-glow)}
+  .pricing .lead{font-family:"Geist",sans-serif;font-size:17px;color:var(--text-2);margin-top:32px;line-height:1.55;max-width:44ch}
+  .pricing .lead b{color:var(--yellow)}
+  .pricing .breakdown{margin-top:28px;display:flex;gap:20px;flex-wrap:wrap}
+  .pricing .breakdown .item{font-family:"Geist Mono",monospace;font-size:11px;color:var(--text-3);letter-spacing:0.1em;text-transform:uppercase;border-left:2px solid var(--yellow);padding-left:12px}
+  .pricing .breakdown .item strong{color:var(--text);font-family:"Geist Mono",monospace;font-size:22px;display:block;font-weight:600;margin-bottom:4px}
+
+  .ledger{
+    background:var(--bg-2);border:1px solid var(--line-2);
+    position:relative;
+  }
+  .ledger::before{
+    content:"FEE_COMPARISON.csv  ::  BPS / YR";position:absolute;top:-1px;left:24px;transform:translateY(-50%);
+    background:var(--bg);font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.18em;
+    padding:4px 10px;border:1px solid var(--line-2);color:var(--text-3);
+  }
+  .ledger table{width:100%;border-collapse:collapse;font-family:"Geist Mono",monospace}
+  .ledger th, .ledger td{padding:18px 22px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}
+  .ledger th{font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-3);font-weight:500;background:var(--bg-3)}
+  .ledger td.fee{font-size:20px;font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+  .ledger td small{font-size:10px;color:var(--text-3);letter-spacing:0.12em;text-transform:uppercase;display:block;margin-top:4px}
+  .ledger tr.us{background:linear-gradient(90deg, rgba(232,255,0,0.08), transparent)}
+  .ledger tr.us td{color:var(--text)}
+  .ledger tr.us td.fee{color:var(--yellow);text-shadow:0 0 18px var(--yellow-glow)}
+  .ledger tr.us td small{color:var(--yellow)}
+  .ledger tr:last-child td{border-bottom:none}
+
+  /* COMPARED TO */
+  .compared h2{font-family:"Geist Mono",monospace;font-size:clamp(42px,6vw,96px);font-weight:600;letter-spacing:-0.04em;text-transform:uppercase;margin-bottom:48px;line-height:.94}
+  .compared h2 .y{color:var(--yellow);text-shadow:0 0 24px var(--yellow-glow)}
+  .vs{border-top:1px solid var(--line-2)}
+  .vs-row{display:grid;grid-template-columns:.9fr 1.4fr;gap:48px;padding:28px 0;border-bottom:1px solid var(--line-2);align-items:start;transition:background .2s,padding .2s}
+  .vs-row:hover{background:var(--bg-2);padding-left:14px}
+  .vs-row .q{font-family:"Geist Mono",monospace;font-size:22px;font-weight:500;letter-spacing:-0.01em;text-transform:uppercase;line-height:1.15}
+  .vs-row .q .y{color:var(--yellow)}
+  .vs-row .a{color:var(--text-2);font-size:15px;line-height:1.6;padding-top:6px}
+  .vs-num{font-family:"Geist Mono",monospace;font-size:11px;color:var(--text-3);letter-spacing:0.16em;display:block;margin-bottom:8px}
+  .vs-num::before{content:"[";color:var(--yellow)}
+  .vs-num::after{content:"]";color:var(--yellow)}
+
+  /* SOCIAL PROOF */
+  .social{background:#020202}
+  .social h2{font-family:"Geist Mono",monospace;font-size:clamp(42px,6vw,96px);font-weight:600;text-transform:uppercase;letter-spacing:-0.04em;margin-bottom:56px;line-height:.94}
+  .social h2 .y{color:var(--yellow)}
+  .quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-2);border:1px solid var(--line-2)}
+  .quote{
+    background:var(--bg);padding:32px;display:flex;flex-direction:column;justify-content:space-between;min-height:280px;
+    transition:background .25s;
+  }
+  .quote:hover{background:var(--bg-2)}
+  .quote .qmark{font-family:"Geist Mono",monospace;font-size:48px;color:var(--yellow);line-height:0.5;height:30px;text-shadow:0 0 20px var(--yellow-glow)}
+  .quote p{font-family:"Geist",sans-serif;font-size:18px;line-height:1.45;color:var(--text);margin:8px 0 24px;font-weight:500}
+  .quote .who{font-family:"Geist Mono",monospace;font-size:11px;color:var(--yellow);letter-spacing:0.14em;text-transform:uppercase}
+  .quote .who small{display:block;color:var(--text-3);margin-top:4px;text-transform:uppercase;letter-spacing:0.08em;font-size:10px}
+
+  /* FAQ */
+  .faq h2{font-family:"Geist Mono",monospace;font-size:clamp(42px,6vw,96px);font-weight:600;text-transform:uppercase;letter-spacing:-0.04em;line-height:.94;margin-bottom:48px}
+  .faq h2 .y{color:var(--yellow)}
+  .acc{border-top:1px solid var(--line-2)}
+  .acc-item{border-bottom:1px solid var(--line-2)}
+  .acc-q{
+    width:100%;background:none;border:none;padding:24px 0;cursor:pointer;
+    display:flex;justify-content:space-between;align-items:center;text-align:left;
+    font-family:"Geist Mono",monospace;font-size:18px;color:var(--text);
+    letter-spacing:-0.005em;text-transform:uppercase;font-weight:500;
+    transition:color .2s,padding .2s;
+  }
+  .acc-q:hover{color:var(--yellow);padding-left:8px}
+  .acc-q .y{color:var(--yellow)}
+  .acc-q .plus{font-family:"Geist Mono",monospace;font-size:18px;color:var(--yellow);transition:transform .3s cubic-bezier(.2,.7,.2,1);text-shadow:0 0 10px var(--yellow-glow)}
+  .acc-item.open .acc-q .plus{transform:rotate(45deg)}
+  .acc-a{max-height:0;overflow:hidden;transition:max-height .35s cubic-bezier(.2,.7,.2,1)}
+  .acc-a-inner{padding:0 0 24px;color:var(--text-2);font-size:15px;line-height:1.65;max-width:64ch}
+  .acc-item.open .acc-a{max-height:300px}
+
+  /* CLOSING */
+  .closing{
+    text-align:center;padding:140px 0;
+    background:radial-gradient(ellipse at center, rgba(232,255,0,0.1), transparent 60%), var(--bg);
+    position:relative;
+  }
+  .closing h2{
+    font-family:"Geist Mono",monospace;font-size:clamp(56px,10vw,160px);
+    font-weight:700;letter-spacing:-0.05em;line-height:0.88;margin-bottom:48px;text-transform:uppercase;
+  }
+  .closing h2 .y{color:var(--yellow);text-shadow:0 0 36px var(--yellow-glow)}
+  .closing .ctas{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+  /* FOOTER */
+  footer{background:#020202;color:var(--text-3);padding:64px 0 28px;border-top:1px solid var(--line)}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:32px;padding-bottom:48px;border-bottom:1px solid var(--line)}
+  .foot-brand h4{font-family:"Geist Mono",monospace;font-size:20px;font-weight:600;color:var(--text);margin-bottom:12px;letter-spacing:0.02em;text-transform:uppercase}
+  .foot-brand h4 .y{color:var(--yellow)}
+  .foot-brand p{color:var(--text-3);font-size:13px;line-height:1.55;max-width:30ch}
+  .foot-col h5{font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.18em;color:var(--yellow);text-transform:uppercase;margin-bottom:18px}
+  .foot-col ul{list-style:none}
+  .foot-col li{margin-bottom:10px}
+  .foot-col a{color:var(--text-2);text-decoration:none;font-size:13px}
+  .foot-col a:hover{color:var(--yellow)}
+  .foot-bottom{display:flex;justify-content:space-between;padding-top:24px;font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.16em;color:var(--text-3);text-transform:uppercase;flex-wrap:wrap;gap:12px}
+  .foot-bottom .y{color:var(--yellow)}
+
+  /* Reveal */
+  .reveal{opacity:0;transform:translateY(14px);transition:all .8s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  /* Responsive */
+  @media (max-width:980px){
+    section{padding:80px 0}
+    .hero{padding:32px 0 64px}
+    .hero-sub,.problem .col2,.agents-head,.agents-body,.pricing-grid,.foot-grid{grid-template-columns:1fr;gap:32px}
+    .hero-stats{grid-template-columns:1fr}
+    .hero-stat{border-right:none;border-bottom:1px solid var(--line-2)}
+    .how-steps,.who-grid,.quotes,.pillars{grid-template-columns:1fr}
+    .step{border-right:none;border-bottom:1px solid var(--line-2)}
+    .vs-row{grid-template-columns:1fr;gap:8px}
+    .calc-row{grid-template-columns:1fr;gap:8px}
+    .calc-row .ctrl{min-width:0;width:100%}
+    .calc-row .val{text-align:left}
+    .calc-out{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr 1fr;gap:32px}
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP STATUS BAR -->
+<div class="statusbar" aria-hidden="true">
+  <div class="left">
+    <span class="dot"></span>
+    <span><b>STATUS</b> :: SYSTEM_LIVE</span>
+    <span><b>BUILD</b> v2026.04.26</span>
+    <span><b>NODE</b> eu-west-3</span>
+  </div>
+  <div class="right">
+    <span><b>UST_3M</b> <span class="y">5.21%</span></span>
+    <span><b>ECB_DEP</b> 3.50%</span>
+    <span><b>LATENCY</b> 12ms</span>
+    <span><b>AUM</b> €42.6M</span>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span class="lbl">US10Y</span><span class="up">4.28% ▲ 0.04</span>
+    <span class="lbl">US3M</span><span class="up">5.21% ▲ 0.02</span>
+    <span class="lbl">US2Y</span><span class="up">4.61% ▲ 0.03</span>
+    <span class="lbl">SOFR</span><span>4.81%</span>
+    <span class="lbl">EUR/USD</span><span class="down">1.082 ▼ 0.003</span>
+    <span class="lbl">ECB DEP</span><span>3.50%</span>
+    <span class="lbl">DXY</span><span class="up">104.62 ▲ 0.18</span>
+    <span class="lbl">SPX</span><span class="up">5,128 ▲ 0.42%</span>
+    <span class="lbl">VIX</span><span class="down">14.21 ▼ 0.63</span>
+    <span class="lbl">BTC</span><span class="up">63,420 ▲ 1.8%</span>
+    <span class="lbl">TREASURY_AI</span><span class="up">€42.6M AUM</span>
+    <!-- duplicate -->
+    <span class="lbl">US10Y</span><span class="up">4.28% ▲ 0.04</span>
+    <span class="lbl">US3M</span><span class="up">5.21% ▲ 0.02</span>
+    <span class="lbl">US2Y</span><span class="up">4.61% ▲ 0.03</span>
+    <span class="lbl">SOFR</span><span>4.81%</span>
+    <span class="lbl">EUR/USD</span><span class="down">1.082 ▼ 0.003</span>
+    <span class="lbl">ECB DEP</span><span>3.50%</span>
+    <span class="lbl">DXY</span><span class="up">104.62 ▲ 0.18</span>
+    <span class="lbl">SPX</span><span class="up">5,128 ▲ 0.42%</span>
+    <span class="lbl">VIX</span><span class="down">14.21 ▼ 0.63</span>
+    <span class="lbl">BTC</span><span class="up">63,420 ▲ 1.8%</span>
+    <span class="lbl">TREASURY_AI</span><span class="up">€42.6M AUM</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="wrap nav-row">
+    <a href="#" class="brand" aria-label="Treasury AI">
+      <span class="brand-mark">T</span>
+      <span class="brand-name">treasury<span>/</span>ai</span>
+    </a>
+    <div class="nav-links">
+      <a href="#how">how_it_works</a>
+      <a href="#agents">agents</a>
+      <a href="#pricing">pricing</a>
+      <a href="#safety">safety</a>
+      <a href="#faq">faq</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#calc" class="btn ghost" style="padding:10px 14px;font-size:11px">calc_yield()</a>
+      <a href="#cta" class="btn primary" style="padding:10px 14px;font-size:11px">deploy → </a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-head">
+      <div class="reveal">
+        <span class="eyebrow">SECTION_01 · ROUTINE-INDEX = 00</span>
+      </div>
+      <h1 class="reveal">
+        <span class="ln">stop <span class="lo strike">losing money</span></span>
+        <span class="ln">on <span class="hl">idle cash.</span></span>
+        <span class="ln">earn <span class="y">4%</span> on it,</span>
+        <span class="ln">automatically.</span>
+      </h1>
+    </div>
+
+    <div class="hero-sub reveal">
+      <div>
+        <p class="lead">An <b>AI treasurer</b> for European startups. We forecast your cash needs, build a <b>T-bill ladder</b>, and rebalance monthly — so you focus on building the company, not managing the bank account.</p>
+        <div class="hero-cta">
+          <a href="#cta" class="btn primary">deploy capital <span class="arrow">→</span></a>
+          <a href="#how" class="btn ghost">see how it works <span class="arrow">↓</span></a>
+        </div>
+        <div class="hero-meta">
+          <span class="ok">paper-trading mode</span>
+          <span class="y">multi-agent live</span>
+          <span>built on alpaca</span>
+        </div>
+      </div>
+      <div>
+        <div class="trust">
+          <span class="pill y">/ EU-NATIVE</span>
+          <span class="pill">/ ALPACA-BACKED</span>
+          <span class="pill">/ 20 BPS AUM</span>
+          <span class="pill">/ NO MIN</span>
+        </div>
+        <div class="ascii" style="margin-top:18px">┌─ <span style="color:var(--yellow)">SAME INFRASTRUCTURE AS</span> ─┐
+│   STASH · PUBLIC · M1   │
+│   robinhood · webull    │
+└─────────────────────────┘</div>
+      </div>
+    </div>
+
+    <!-- Hero stat band -->
+    <div class="hero-stats reveal">
+      <div class="hero-stat">
+        <div class="k"><span>UST 3M YIELD</span><span class="ind">▲ LIVE</span></div>
+        <div class="v">5.21<small>%</small></div>
+        <div class="d">3-month US Treasury · via Alpaca</div>
+      </div>
+      <div class="hero-stat feature">
+        <div class="k"><span>YIELD ON €3M</span><span class="ind">★ TARGET</span></div>
+        <div class="v">€156,300<small>/yr</small></div>
+        <div class="d">vs €15,000 in a 0.5% checking acct</div>
+      </div>
+      <div class="hero-stat">
+        <div class="k"><span>OUR FEE</span><span class="ind">FLAT</span></div>
+        <div class="v">20<small>bps</small></div>
+        <div class="d">5% of value generated. Rest is yours.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM + CALC -->
+<section class="problem" id="calc">
+  <div class="wrap">
+    <div class="col2">
+      <div class="reveal">
+        <span class="eyebrow">SECTION_02 · OPPORTUNITY_COST</span>
+        <h2 style="margin-top:24px">YOU'RE LEAVING<br/><span class="y">$100,000</span><br/>ON THE TABLE.<br/><span style="color:var(--text-3)">EVERY YEAR.</span></h2>
+        <p>Most Series A startups have <strong style="color:var(--text)">€1M–€10M</strong> sitting in checking accounts at 0.5% interest. T-bills currently yield 4%+. The gap is real money — and it's quietly disappearing into inflation while you focus on building.</p>
+        <div class="stat">SOURCE :: ECB_DEP 3.50% · UST_3M 5.21% · APR_2026</div>
+      </div>
+
+      <div class="calc reveal">
+        <div class="calc-bar">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span style="margin-left:8px">treasury_ai</span>
+          <span class="path">~/calc/<b>missing_yield.ts</b></span>
+        </div>
+        <div class="calc-body">
+          <h3>compute_missing_yield()</h3>
+          <div class="calc-row">
+            <label for="cash">idle_cash</label>
+            <div class="ctrl">
+              <input id="cash" type="range" min="500000" max="20000000" step="50000" value="3000000"/>
+              <span class="val">€<span id="cash-val">3,000,000</span></span>
+            </div>
+          </div>
+          <div class="calc-row">
+            <label for="checking">checking_yield</label>
+            <div class="ctrl">
+              <input id="checking" type="range" min="0" max="200" step="5" value="50"/>
+              <span class="val"><span id="checking-val">0.50</span>%</span>
+            </div>
+          </div>
+          <div class="calc-row">
+            <label for="ladder">tbill_ladder</label>
+            <div class="ctrl">
+              <input id="ladder" type="range" min="300" max="550" step="1" value="428"/>
+              <span class="val"><span id="ladder-val">4.28</span>%</span>
+            </div>
+          </div>
+          <div class="calc-out">
+            <div class="box bad">
+              <div class="lbl">today_you_earn</div>
+              <div class="num">€<span id="now-val">15,000</span><small>/yr</small></div>
+            </div>
+            <div class="box good">
+              <div class="lbl">should_be_earning</div>
+              <div class="num">€<span id="should-val">128,400</span><small>/yr</small></div>
+            </div>
+          </div>
+          <div class="calc-miss">
+            <div>
+              <div class="ml">// CAPITAL_MISSING_IN_FLIGHT</div>
+              <div class="mn">€<span id="miss-val">113,400</span><small>/year</small></div>
+            </div>
+            <a href="#cta" class="btn primary">capture()  →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="reveal">
+        <span class="eyebrow">SECTION_03 · MECHANICS</span>
+        <h2 style="margin-top:24px">FIVE MINUTES.<br/>THEN <span class="y">NEVER AGAIN.</span></h2>
+      </div>
+      <div class="reveal">
+        <p class="lead">No new bank account. No 80-page IPS to draft from scratch. No spreadsheets. The AI does the analysis and proposes — you sign off, it executes.</p>
+      </div>
+    </div>
+
+    <div class="how-steps">
+      <div class="step reveal">
+        <div class="num"><span>STEP_01</span><span>~ 5 MIN</span></div>
+        <div class="glyph">01</div>
+        <h3>connect()</h3>
+        <p>Sign up in 5 minutes. We open a brokerage account in your company's name (via Alpaca, the same infrastructure neobrokers use). You wire your idle cash like any vendor payment.</p>
+        <div class="meta">KYC · COMPANY_VERIFY · WIRE_INSTRUCTIONS</div>
+      </div>
+      <div class="step reveal">
+        <div class="num"><span>STEP_02</span><span>~ 30 SEC</span></div>
+        <div class="glyph">02</div>
+        <h3>approve()</h3>
+        <p>Our AI treasurer reads your bank history, projects your cashflow, and proposes a conservative T-bill ladder. You see every recommendation with reasoning. You approve with one click.</p>
+        <div class="meta">FORECAST · LADDER · IPS_CHECK · CONFIRM</div>
+      </div>
+      <div class="step reveal">
+        <div class="num"><span>STEP_03</span><span>AUTONOMOUS</span></div>
+        <div class="glyph">03</div>
+        <h3>earn()</h3>
+        <p>Trades execute live. Cash earns ~4% in US Treasuries. Monthly rebalancing is automatic. Need cash back? Withdraw any time — same-day for liquid positions.</p>
+        <div class="meta">EXECUTE · REBAL_30D · WITHDRAW_T+1</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHO IS THIS FOR -->
+<section class="who">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="reveal">
+        <span class="eyebrow">SECTION_04 · TARGET_PROFILES</span>
+        <h2 style="margin-top:24px">BUILT FOR THE FOUNDER<br/>DOING <span class="y">CFO DUTY</span><br/>BETWEEN SALES CALLS.</h2>
+      </div>
+      <div class="reveal">
+        <p class="lead">Three personas, one workflow. You don't have to be a treasury professional — the agent assumes that role for you.</p>
+      </div>
+    </div>
+    <div class="who-grid">
+      <div class="persona reveal">
+        <div class="persona-tag">PROFILE_A</div>
+        <div class="icon">/f</div>
+        <h3>series a founders</h3>
+        <p>You raised, you have runway, you know the cash should be working harder. You don't have time to read a fixed-income textbook and you can't afford a part-time CFO.</p>
+      </div>
+      <div class="persona reveal">
+        <div class="persona-tag">PROFILE_B</div>
+        <div class="icon">/h</div>
+        <h3>finance hires</h3>
+        <p>You joined as Head of Finance and inherited the cash management problem. The board wants a treasury memo. You want a quick, defensible win.</p>
+      </div>
+      <div class="persona reveal">
+        <div class="persona-tag">PROFILE_C</div>
+        <div class="icon">/o</div>
+        <h3>ops leaders</h3>
+        <p>You run ops at a growing startup, finance is one of five hats, you want a tool that just works without weeks of evaluation.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENTS -->
+<section class="agents" id="agents">
+  <div class="wrap">
+    <div class="agents-head">
+      <div class="reveal">
+        <span class="eyebrow">SECTION_05 · AGENT_TOPOLOGY</span>
+        <h2 style="margin-top:24px">IT'S NOT ONE CHATBOT.<br/>IT'S <span class="y">A TEAM.</span></h2>
+      </div>
+      <div class="reveal">
+        <p>Treasury AI runs a multi-agent system: each role mirrors a real corporate treasury function. They debate, they enforce, they execute — and surface a single one-paragraph reply for you to read.</p>
+      </div>
+    </div>
+
+    <div class="agents-body">
+      <div class="topology reveal" aria-hidden="true">
+        <svg viewBox="0 0 600 600">
+          <defs>
+            <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#E8FF00" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#E8FF00" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <circle cx="300" cy="300" r="280" fill="url(#halo)"/>
+          <circle cx="300" cy="300" r="248" fill="none" stroke="rgba(232,255,0,0.18)" stroke-dasharray="2 6"/>
+          <circle cx="300" cy="300" r="190" fill="none" stroke="rgba(232,255,0,0.10)"/>
+          <g class="links">
+            <line class="link" x1="300" y1="300" x2="300" y2="92"/>
+            <line class="link" x1="300" y1="300" x2="486" y2="190"/>
+            <line class="link" x1="300" y1="300" x2="486" y2="410"/>
+            <line class="link" x1="300" y1="300" x2="300" y2="508"/>
+            <line class="link" x1="300" y1="300" x2="114" y2="410"/>
+            <line class="link" x1="300" y1="300" x2="114" y2="190"/>
+          </g>
+          <g>
+            <g transform="translate(300,92)">
+              <circle class="node-circle" r="46"/>
+              <text class="node-label" text-anchor="middle" dy="-3">FORECASTER</text>
+              <text class="node-label" text-anchor="middle" dy="12" fill="#E8FF00" font-size="9">cashflow</text>
+            </g>
+            <g transform="translate(486,190)">
+              <circle class="node-circle" r="46"/>
+              <text class="node-label" text-anchor="middle" dy="-3">STRATEGIST</text>
+              <text class="node-label" text-anchor="middle" dy="12" fill="#E8FF00" font-size="9">build_ladder</text>
+            </g>
+            <g transform="translate(486,410)">
+              <circle class="node-circle" r="46"/>
+              <text class="node-label" text-anchor="middle" dy="-3">RISK</text>
+              <text class="node-label" text-anchor="middle" dy="12" fill="#E8FF00" font-size="9">policy_veto</text>
+            </g>
+            <g transform="translate(300,508)">
+              <circle class="node-circle" r="46"/>
+              <text class="node-label" text-anchor="middle" dy="-3">EXECUTOR</text>
+              <text class="node-label" text-anchor="middle" dy="12" fill="#E8FF00" font-size="9">paper_trade</text>
+            </g>
+            <g transform="translate(114,410)">
+              <circle class="node-circle" r="46"/>
+              <text class="node-label" text-anchor="middle" dy="-3">PORTFOLIO</text>
+              <text class="node-label" text-anchor="middle" dy="12" fill="#E8FF00" font-size="9">read_state</text>
+            </g>
+            <g transform="translate(114,190)">
+              <circle class="node-circle" r="46"/>
+              <text class="node-label" text-anchor="middle" dy="-3">SYNTHESIS</text>
+              <text class="node-label" text-anchor="middle" dy="12" fill="#E8FF00" font-size="9">narrate</text>
+            </g>
+            <g transform="translate(300,300)">
+              <circle class="node-cfo" r="64"/>
+              <text class="node-label" text-anchor="middle" dy="-6" font-size="11" fill="#E8FF00">CFO_ROUTER</text>
+              <text class="node-label" text-anchor="middle" dy="10" font-size="9" fill="#9A9A9A">orchestrator</text>
+              <circle r="3" cx="0" cy="0" class="pulse">
+                <animate attributeName="r" values="3;42;3" dur="3.4s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.7;0;0.7" dur="3.4s" repeatCount="indefinite"/>
+              </circle>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="agent-list reveal">
+        <div class="agent-row"><div class="role">forecaster</div><div class="desc">Reads bank transaction history, projects cash needs forward.</div><div class="file">forecaster.py</div></div>
+        <div class="agent-row"><div class="role">strategist</div><div class="desc">Builds a maturity-laddered portfolio using live US Treasury yields.</div><div class="file">strategist.py</div></div>
+        <div class="agent-row"><div class="role">risk_officer</div><div class="desc">Enforces your IPS. Hard veto on rule violations.</div><div class="file">risk.py</div></div>
+        <div class="agent-row"><div class="role">executor</div><div class="desc">Places trades on Alpaca — only after explicit approval.</div><div class="file">executor.py</div></div>
+        <div class="agent-row"><div class="role">cfo_synth</div><div class="desc">Translates structured analysis into one-paragraph plain English.</div><div class="file">synthesis.py</div></div>
+        <div class="agent-row"><div class="role">portfolio</div><div class="desc">Answers status queries: where's my cash, what did we earn this month.</div><div class="file">portfolio.py</div></div>
+      </div>
+    </div>
+
+    <div class="agents-foot reveal">YOU CHAT WITH ONE. <span class="y">FIVE WORK FOR YOU.</span></div>
+  </div>
+</section>
+
+<!-- SAFETY -->
+<section class="safety" id="safety">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="reveal">
+        <span class="eyebrow">SECTION_06 · CUSTODY &amp; CONTROL</span>
+        <h2 style="font-family:'Geist Mono',monospace;font-size:clamp(42px,6vw,96px);font-weight:600;letter-spacing:-0.04em;text-transform:uppercase;line-height:0.94;margin-top:24px">YOUR MONEY. YOUR CONTROL.<br/><span class="y">OUR AI DOES THE WORK.</span></h2>
+      </div>
+      <div class="reveal">
+        <p class="lead">A software layer over a regulated broker — never a custodian. Same model as Wealthfront, Betterment, Mercury. Four guarantees, hard-coded.</p>
+      </div>
+    </div>
+
+    <div class="pillars">
+      <div class="pillar reveal">
+        <div class="pill-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="10" width="16" height="11" rx="1"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+        </div>
+        <h3>your money never sits with us</h3>
+        <p>Funds are custodied at Alpaca's regulated banking partner. We're a software layer — same model as Wealthfront, Betterment, Mercury. If we vanish tomorrow, you log into Alpaca directly.</p>
+      </div>
+      <div class="pillar reveal">
+        <div class="pill-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h3>every trade requires approval</h3>
+        <p>The AI proposes. You approve. No surprise actions, ever. Full audit trail of every recommendation and decision — with reasoning attached.</p>
+      </div>
+      <div class="pillar reveal">
+        <div class="pill-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12l2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="2"/></svg>
+        </div>
+        <h3>policy enforced in code</h3>
+        <p>Set max % per ETF, max duration, allowed asset classes. The Risk Officer checks every proposal against your rules. Hard veto on violations — no override.</p>
+      </div>
+      <div class="pillar reveal">
+        <div class="pill-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M12 3v18"/></svg>
+        </div>
+        <h3>withdraw any time</h3>
+        <p>50% of the portfolio is in 0–3 month instruments. Liquid in 24–48 hours. No lockups, no penalties, no fine print. T+1 settlement on most positions.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="pricing-grid">
+      <div class="reveal">
+        <span class="eyebrow">SECTION_07 · PRICING</span>
+        <h2 style="margin-top:24px">20<br/><span class="bps">BASIS</span><br/><span class="bps">POINTS.</span></h2>
+        <p class="lead">We charge <b>0.20%</b> of your assets under management per year. On €3M, that's €6,000/year — versus the €120k+ of yield we generate. We capture about 5% of the value we create.<br/><strong style="color:var(--text)">The rest is yours.</strong></p>
+        <div class="breakdown">
+          <div class="item"><strong>€0</strong>setup_fee</div>
+          <div class="item"><strong>€0</strong>min_aum</div>
+          <div class="item"><strong>€0</strong>subscription</div>
+        </div>
+      </div>
+
+      <div class="ledger reveal">
+        <table>
+          <thead>
+            <tr><th>provider</th><th style="text-align:right">fee</th></tr>
+          </thead>
+          <tbody>
+            <tr class="us"><td><strong>treasury_ai</strong><small>EU_NATIVE · AI_AGENT</small></td><td class="fee">20 bps</td></tr>
+            <tr><td>wealthfront / betterment<small>RETAIL · US_ONLY</small></td><td class="fee">25 bps</td></tr>
+            <tr><td>indexa capital<small>EU_ROBO</small></td><td class="fee">30–43 bps</td></tr>
+            <tr><td>private bank treasury<small>€1M+ MIN · OPAQUE</small></td><td class="fee">50–150 bps</td></tr>
+            <tr><td>hedge fund<small>2 / 20</small></td><td class="fee">200 + 20%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARED TO -->
+<section class="compared">
+  <div class="wrap">
+    <div class="reveal">
+      <span class="eyebrow">SECTION_08 · CYNICS_CHECKLIST</span>
+      <h2 style="margin-top:24px">WHY NOT <span class="y">JUST…</span></h2>
+    </div>
+    <div class="vs">
+      <div class="vs-row reveal">
+        <div class="q"><span class="vs-num">01</span>USE <span class="y">MERCURY</span> OR <span class="y">BREX?</span></div>
+        <div class="a">They're great. They're also US-only. We're EU-native.</div>
+      </div>
+      <div class="vs-row reveal">
+        <div class="q"><span class="vs-num">02</span>OPEN <span class="y">INTERACTIVE BROKERS</span> AND DIY?</div>
+        <div class="a">You can. It's 5–10 hours of setup, no investment policy, no monthly maintenance, no AR/AP-aware forecasting. We do all of it for less than the value of an hour of your time per month.</div>
+      </div>
+      <div class="vs-row reveal">
+        <div class="q"><span class="vs-num">03</span>HIRE A <span class="y">WEALTH MANAGER?</span></div>
+        <div class="a">€5k–€50k per year, weeks of onboarding, €1M+ minimums, opaque. We're €6k for the same outcome on €3M, with full transparency.</div>
+      </div>
+      <div class="vs-row reveal">
+        <div class="q"><span class="vs-num">04</span>USE <span class="y">WISE INTEREST</span> OR <span class="y">REVOLUT VAULT?</span></div>
+        <div class="a">1–2% yields, capped, not real treasury. We're 4%+ uncapped, in real US Treasuries.</div>
+      </div>
+      <div class="vs-row reveal">
+        <div class="q"><span class="vs-num">05</span>BUILD <span class="y">INTERNAL TOOLING?</span></div>
+        <div class="a">Your CTO won't, your engineers shouldn't. Buy this — it's table stakes.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<section class="social">
+  <div class="wrap">
+    <div class="reveal"><span class="eyebrow">SECTION_09 · DESIGN_PARTNERS</span></div>
+    <h2 class="reveal" style="margin-top:24px">TRUSTED BY <span class="y">FOUNDERS.</span></h2>
+    <div class="quotes">
+      <div class="quote reveal">
+        <div class="qmark">"</div>
+        <p>Setup was 30 minutes. We've earned $87k in 8 months on cash that was earning $1,200 in checking before.</p>
+        <div class="who">PABLO M.<small>FOUNDER · ACME</small></div>
+      </div>
+      <div class="quote reveal">
+        <div class="qmark">"</div>
+        <p>I had to write a treasury memo for the board in my first month. Treasury AI gave me one I could actually defend.</p>
+        <div class="who">MARIE K.<small>HEAD OF FINANCE · SAAS B</small></div>
+      </div>
+      <div class="quote reveal">
+        <div class="qmark">"</div>
+        <p>It's the lowest-risk, highest-yield decision I've made all year.</p>
+        <div class="who">JAMES R.<small>COO · SERIES B</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="reveal">
+        <span class="eyebrow">SECTION_10 · QA</span>
+        <h2 style="margin-top:24px">SHARP <span class="y">QUESTIONS,</span><br/>DIRECT <span class="y">ANSWERS.</span></h2>
+      </div>
+    </div>
+    <div class="acc">
+      <div class="acc-item">
+        <button class="acc-q"><span>// IS THIS <span class="y">LEGAL</span> IN EUROPE?</span><span class="plus">+</span></button>
+        <div class="acc-a"><div class="acc-a-inner">Yes. We operate as an investment advisor — the same regulatory model as Indexa Capital, Moneyfarm, Scalable, Wealthfront, Betterment. Customer money is custodied at a regulated broker (Alpaca).</div></div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-q"><span>// WHAT IF <span class="y">INTEREST RATES DROP?</span></span><span class="plus">+</span></button>
+        <div class="acc-a"><div class="acc-a-inner">Our agent rebalances monthly. If rates drop, it shortens duration. If they rise, it extends. You always have current best yield — and the Risk Officer always validates against your IPS.</div></div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-q"><span>// WHAT IF I NEED <span class="y">CASH BACK URGENTLY?</span></span><span class="plus">+</span></button>
+        <div class="acc-a"><div class="acc-a-inner">Half the portfolio is in 0–3 month T-bills (T+1 settlement). Cash back in your bank within 48 hours. For genuine emergencies, we can liquidate everything within a week.</div></div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-q"><span>// CAN I SEE <span class="y">EVERY DECISION</span> THE AI MAKES?</span><span class="plus">+</span></button>
+        <div class="acc-a"><div class="acc-a-inner">Yes. Every proposal includes the reasoning. Every trade has an audit trail. You can sidebar any agent (Risk Officer, Forecaster, Strategist) to interrogate its logic directly.</div></div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-q"><span>// WHAT IF MY <span class="y">POLICY IS UNUSUAL?</span></span><span class="plus">+</span></button>
+        <div class="acc-a"><div class="acc-a-inner">You can customize it: max % per ETF, max duration, allowed asset classes, minimum credit rating, liquidity floor. The Risk Officer enforces <em>your</em> rules.</div></div>
+      </div>
+      <div class="acc-item">
+        <button class="acc-q"><span>// HOW IS THIS <span class="y">DIFFERENT FROM MERCURY?</span></span><span class="plus">+</span></button>
+        <div class="acc-a"><div class="acc-a-inner">Mercury is US-only. We're EU-native. Their fee structure is opaque (a spread on the yield curve); ours is transparent (20 bps flat). We're also AI-agent-native — chat instead of dashboards.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CLOSING CTA -->
+<section class="closing" id="cta">
+  <div class="wrap">
+    <span class="eyebrow reveal">SECTION_11 · BEGIN</span>
+    <h2 class="reveal" style="margin-top:24px">YOUR CASH SHOULD BE<br/><span class="y">WORKING HARDER.</span></h2>
+    <div class="ctas reveal">
+      <a href="#calc" class="btn ghost">calculate yield <span class="arrow">→</span></a>
+      <a href="#" class="btn primary">start free trial <span class="arrow">→</span></a>
+      <a href="#" class="btn ghost">talk to our team <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <h4>treasury<span class="y">/ai</span></h4>
+        <p>mercury treasury for europe. ai-native, embeddable, 20 bps of aum. madrid · 2026.</p>
+      </div>
+      <div class="foot-col">
+        <h5>// PRODUCT</h5>
+        <ul><li><a href="#how">how_it_works</a></li><li><a href="#pricing">pricing</a></li><li><a href="#safety">security</a></li></ul>
+      </div>
+      <div class="foot-col">
+        <h5>// COMPANY</h5>
+        <ul><li><a href="#">about</a></li><li><a href="#">blog</a></li><li><a href="#">careers</a></li></ul>
+      </div>
+      <div class="foot-col">
+        <h5>// RESOURCES</h5>
+        <ul><li><a href="#">ips_template</a></li><li><a href="#">treasury_101</a></li><li><a href="#">api_docs</a></li></ul>
+      </div>
+      <div class="foot-col">
+        <h5>// LEGAL</h5>
+        <ul><li><a href="#">terms</a></li><li><a href="#">privacy</a></li><li><a href="#">disclosures</a></li></ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 treasury_ai · built at <span class="y">madhack</span></span>
+      <span>powered by alpaca · anthropic claude · langgraph · orca</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Calculator
+  const cash = document.getElementById('cash');
+  const checking = document.getElementById('checking');
+  const ladder = document.getElementById('ladder');
+  const cv = document.getElementById('cash-val');
+  const ckv = document.getElementById('checking-val');
+  const lv = document.getElementById('ladder-val');
+  const nowVal = document.getElementById('now-val');
+  const shouldVal = document.getElementById('should-val');
+  const missVal = document.getElementById('miss-val');
+
+  const fmt = (n) => Math.round(n).toLocaleString('en-US');
+  const fmtPct = (bp) => (bp/100).toFixed(2);
+
+  function update(){
+    const c = +cash.value;
+    const ck = +checking.value;
+    const ld = +ladder.value;
+    cv.textContent = fmt(c);
+    ckv.textContent = fmtPct(ck);
+    lv.textContent = fmtPct(ld);
+    const now = c * (ck/10000);
+    const should = c * (ld/10000);
+    nowVal.textContent = fmt(now);
+    shouldVal.textContent = fmt(should);
+    missVal.textContent = fmt(should - now);
+  }
+  [cash,checking,ladder].forEach(el => el.addEventListener('input', update));
+  update();
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  },{threshold:0.1, rootMargin:'0px 0px -40px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // Stagger hero reveals
+  document.querySelectorAll('.hero .reveal').forEach((el,i)=>{
+    el.style.transitionDelay = (i*120)+'ms';
+  });
+
+  // FAQ accordion
+  document.querySelectorAll('.acc-q').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const item = btn.closest('.acc-item');
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.acc-item').forEach(i=>i.classList.remove('open'));
+      if(!wasOpen) item.classList.add('open');
+    });
+  });
+
+  // Smooth in-page nav
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',(e)=>{
+      const id = a.getAttribute('href');
+      if(id.length>1){
+        const t = document.querySelector(id);
+        if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth',block:'start'}); }
+      }
+    });
+  });
+</script>
+</body>
+</html>
