@@ -338,51 +338,24 @@ def broker_submit_order(symbol: str, qty: float, side: str = "buy") -> dict:
     bc = get_broker_client()
     sym = symbol.upper().strip()
     side_enum = OrderSide.BUY if side.lower() == "buy" else OrderSide.SELL
-    order_request = MarketOrderRequest(
-        symbol=sym,
-        qty=qty,
-        side=side_enum,
-        time_in_force=TimeInForce.DAY,
+    order = bc.submit_order_for_account(
+        account_id=aid,
+        order_data=MarketOrderRequest(
+            symbol=sym,
+            qty=qty,
+            side=side_enum,
+            time_in_force=TimeInForce.DAY,
+        ),
     )
-    try:
-        order = bc.submit_order_for_account(account_id=aid, order_data=order_request)
-        return {
-            "order_id": str(order.id),
-            "symbol": sym,
-            "qty": float(order.qty),
-            "side": str(order.side),
-            "status": str(order.status),
-            "filled_avg_price": float(order.filled_avg_price) if order.filled_avg_price else None,
-        }
-    except Exception as broker_err:
-        # Demo resilience: when the sandbox returns a generic 5xx (e.g. while
-        # ACH funding is mid-clearing and buying power isn't yet credited),
-        # emit a simulated fill so the multi-agent flow doesn't dead-end.
-        # Code path and tool contract are identical — we still call
-        # `submit_order_for_account` first; only the transient failure is
-        # locally absorbed.
-        if "50010000" not in str(broker_err) and "internal server error" not in str(broker_err).lower():
-            raise
-
-        # Use the live ask as a plausible fill price (Broker API order would
-        # have filled near this anyway).
-        try:
-            from agents.tools import alpaca_get_latest_quote
-
-            quote = alpaca_get_latest_quote.invoke({"symbol": sym})
-            fill_price = float(quote.get("ask") or quote.get("mid_price") or 100.0)
-        except Exception:
-            fill_price = 100.0
-
-        return {
-            "order_id": f"sim-{uuid.uuid4().hex[:12]}",
-            "symbol": sym,
-            "qty": float(qty),
-            "side": str(side_enum),
-            "status": "filled",
-            "filled_avg_price": round(fill_price, 4),
-            "_sandbox_degraded": True,
-        }
+    return {
+        "order_id": str(order.id),
+        "symbol": sym,
+        "qty": float(order.qty),
+        "side": str(order.side),
+        "status": str(order.status),
+        "filled_avg_price": float(order.filled_avg_price) if order.filled_avg_price else None,
+        "submitted_at": str(order.submitted_at) if order.submitted_at else None,
+    }
 
 
 @tool

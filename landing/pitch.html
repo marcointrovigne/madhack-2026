@@ -265,41 +265,61 @@
   .s-moat .why .card.featured{background:linear-gradient(135deg,rgba(232,255,0,0.16),rgba(232,255,0,0.02))}
   .s-moat .why .card.featured h4{color:var(--yellow);text-shadow:0 0 14px var(--yellow-glow)}
 
-  /* SLIDE 07 — CLOSING */
+  /* SLIDE 05 — CLOSING (market + moat folded in) */
   .s-close{text-align:left}
   .s-close .quote{
-    font-family:"Geist Mono",monospace;font-size:clamp(26px,3.6vw,52px);
+    font-family:"Geist Mono",monospace;font-size:clamp(22px,2.8vw,38px);
     font-weight:500;letter-spacing:-0.02em;line-height:1.1;text-transform:uppercase;
-    max-width:24ch;
+    max-width:30ch;
   }
   .s-close .quote .y{color:var(--yellow);text-shadow:0 0 26px var(--yellow-glow)}
+
+  .market-strip{
+    margin-top:24px;display:grid;grid-template-columns:repeat(4,1fr);
+    gap:1px;background:var(--line-2);border:1px solid var(--line-2);
+  }
+  .market-strip .ms-cell{padding:14px 16px;background:var(--bg-2)}
+  .market-strip .k{font-family:"Geist Mono",monospace;font-size:10px;color:var(--text-3);letter-spacing:0.16em;text-transform:uppercase}
+  .market-strip .v{font-family:"Geist Mono",monospace;font-size:28px;font-weight:600;letter-spacing:-0.02em;margin-top:4px;color:var(--text);font-variant-numeric:tabular-nums;line-height:1}
+  .market-strip .v.y{color:var(--yellow);text-shadow:0 0 18px var(--yellow-glow)}
+  .market-strip .d{font-family:"Geist Mono",monospace;font-size:10px;color:var(--text-3);margin-top:4px;letter-spacing:0.04em;text-transform:uppercase}
+
+  .moat-row{
+    margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+  }
+  .moat-row .m-lbl{font-family:"Geist Mono",monospace;font-size:10px;letter-spacing:0.18em;color:var(--yellow);text-transform:uppercase;margin-right:4px}
+  .moat-row .m-pill{
+    font-family:"Geist Mono",monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;
+    padding:6px 10px;border:1px solid var(--line-2);color:var(--text-2);background:var(--bg-2);
+  }
+  .moat-row .m-pill.y{border-color:var(--yellow);color:var(--yellow);background:var(--yellow-dim);text-shadow:0 0 10px var(--yellow-glow)}
+
   .s-close .ask{
-    margin-top:36px;padding-top:24px;border-top:1px solid var(--line-2);
+    margin-top:18px;padding-top:18px;border-top:1px solid var(--line-2);
     display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
   }
   .s-close .ask .item{font-family:"Geist Mono",monospace;font-size:12px;color:var(--text-2);letter-spacing:0.04em;line-height:1.5}
   .s-close .ask .item b{color:var(--yellow);font-weight:600;display:block;text-transform:uppercase;letter-spacing:0.16em;font-size:10px;margin-bottom:6px}
   .s-close .stack-strip{
-    margin-top:28px;padding:14px 0;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);
-    display:flex;gap:24px;flex-wrap:wrap;align-items:center;
+    margin-top:18px;padding:10px 0;border-top:1px solid var(--line-2);border-bottom:1px solid var(--line-2);
+    display:flex;gap:18px;flex-wrap:wrap;align-items:center;
     font-family:"Geist Mono",monospace;font-size:11px;letter-spacing:0.16em;color:var(--text-3);text-transform:uppercase;
   }
   .s-close .stack-strip span{color:var(--text-2)}
   .s-close .stack-strip span.y{color:var(--yellow)}
   .s-close .stack-strip .lbl{color:var(--yellow);font-weight:600}
   .s-close .end{
-    margin-top:36px;display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:24px;
+    margin-top:20px;display:flex;justify-content:space-between;align-items:end;flex-wrap:wrap;gap:24px;
     font-family:"Geist Mono",monospace;font-size:11px;color:var(--text-3);letter-spacing:0.16em;text-transform:uppercase;
   }
-  .s-close .end .big{font-size:56px;color:var(--yellow);font-weight:700;letter-spacing:-0.04em;text-shadow:0 0 30px var(--yellow-glow);line-height:1}
+  .s-close .end .big{font-size:48px;color:var(--yellow);font-weight:700;letter-spacing:-0.04em;text-shadow:0 0 30px var(--yellow-glow);line-height:1}
   .s-close .end .right{text-align:right}
 
   /* responsive */
   @media (max-width:980px){
     .slide{padding:80px 5vw 80px}
-    .s-problem .grid,.s-product .grid,.s-demo .grid,.s-market .top,.s-moat .grid{grid-template-columns:1fr;gap:24px}
-    .s-market .arrs,.s-moat .why{grid-template-columns:1fr}
-    .s-close .ask{grid-template-columns:1fr}
+    .s-problem .grid,.s-product .grid,.s-demo .grid{grid-template-columns:1fr;gap:24px}
+    .s-close .ask,.market-strip{grid-template-columns:1fr}
     h1{font-size:clamp(48px,11vw,90px)}
   }
 
@@ -316,7 +336,7 @@
 </head>
 <body>
 
-<div class="progress"><div class="bar" id="bar" style="width:14.28%"></div></div>
+<div class="progress"><div class="bar" id="bar" style="width:20%"></div></div>
 <div class="hud-top" aria-hidden="true">
   <div class="left">
     <span class="dot"></span>
@@ -361,7 +381,7 @@
       <div class="grid">
         <div>
           <span class="eyebrow anim anim-1">// the problem</span>
-          <h2 class="anim anim-2" style="margin-top:14px">EVERY SERIES A<br/>LOSES <span class="hl">~3% / YR</span><br/>TO INFLATION.</h2>
+          <h2 class="anim anim-2" style="margin-top:14px">EVERY SMALL EU<br/>COMPANY LOSES<br/><span class="hl">~3% / YR</span> TO INFLATION.</h2>
           <p class="lead anim anim-3" style="margin-top:18px"><b>€1.5T+</b> in EU operating cash earning &lt;1%. T-bills currently pay 4%+. The gap is real money — and no one captures it because opening a brokerage and writing an IPS is six weeks of work.</p>
           <div class="reasons anim anim-4">
             <div class="reason"><span class="x">✗</span><span><b>Brokerage account</b> · weeks of paperwork</span></div>
@@ -400,6 +420,7 @@
             <div class="agent-row"><div class="role">cfo_synth</div><div class="desc">One-paragraph plain-English reply.</div></div>
           </div>
           <div class="gate anim anim-5">🔒 <b>APPROVAL GATE</b> :: every trade needs explicit founder confirmation.</div>
+          <div class="anim anim-5" style="margin-top:10px;font-family:'Geist Mono',monospace;font-size:10px;color:var(--text-3);letter-spacing:0.06em">* T-bill exposure via SGOV · BIL · SHV · SHY ETFs · US-Treasury-only · ~10 bps expense ratio</div>
         </div>
         <div class="topology anim anim-4" aria-hidden="true">
           <svg viewBox="0 0 600 600">
@@ -478,107 +499,43 @@
     </div>
   </section>
 
-  <!-- 05 :: MARKET -->
-  <section class="slide s-market" data-id="05" data-name="market">
-    <div class="marker"><span class="id">SLIDE_05</span><span>market</span></div>
+  <!-- 05 :: CLOSING (market + moat folded in) -->
+  <section class="slide s-close" data-id="05" data-name="market_close">
+    <div class="marker"><span class="id">SLIDE_05</span><span>market + close</span></div>
     <div class="slide-inner">
-      <div class="top">
-        <div>
-          <span class="eyebrow anim anim-1">// market</span>
-          <div class="big anim anim-2">€1.5T+</div>
-          <div class="label anim anim-3">EU OPERATING CASH · EARNING <b>&lt; 1%</b></div>
-        </div>
-        <div class="anim anim-4" style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--text-2);line-height:1.55">
-          <b style="color:var(--text);text-transform:uppercase;letter-spacing:0.04em">// US comparable</b><br/>
-          mercury treasury captured <span class="y" style="font-size:18px;font-weight:600">$4B AUM</span> in <b>2 years</b> post-svb.<br/><br/>
-          europe has no equivalent.<br/>
-          <span class="y">// vacant market.</span>
-        </div>
-      </div>
-      <div class="arrs anim anim-5">
-        <div class="arr">
-          <div class="k">// 0.1% share</div>
-          <div class="v">$30M ARR</div>
-          <div class="d">@ 20 bps · 24 months</div>
-        </div>
-        <div class="arr y">
-          <div class="k">// 1% share</div>
-          <div class="v">$300M ARR</div>
-          <div class="d">@ 20 bps · medium-term</div>
-        </div>
-        <div class="arr">
-          <div class="k">// gross margin</div>
-          <div class="v">~90%</div>
-          <div class="d">software fee on AUM</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 06 :: GTM + MOAT -->
-  <section class="slide s-moat" data-id="06" data-name="gtm_moat">
-    <div class="marker"><span class="id">SLIDE_06</span><span>gtm + moat</span></div>
-    <div class="slide-inner">
-      <span class="eyebrow anim anim-1">// gtm + moat</span>
-      <h2 class="anim anim-2" style="margin-top:14px">TWO PHASES.<br/><span class="y">FOUR MOATS.</span></h2>
-      <div class="grid">
-        <div class="anim anim-3">
-          <div class="phase">
-            <div class="tag">// PHASE 01 · MONTHS 0–18</div>
-            <h3>direct to startups</h3>
-            <p><b>VC portfolios · accelerators · founder content.</b> 20 bps flat, no minimum. Target: 100–500 customers, $100M–$500M AUM.</p>
-          </div>
-          <div class="phase p2">
-            <div class="tag">// PHASE 02 · MONTHS 18+</div>
-            <h3>white-label embed</h3>
-            <p>Embed in <b>qonto · revolut · pleo · spendesk · payhawk.</b> Single embed unlocks 10k+ accounts overnight. 25/75 rev share.</p>
-          </div>
-        </div>
-        <div class="why anim anim-4">
-          <div class="card featured">
-            <div class="num">01</div>
-            <h4>30-min onboarding</h4>
-            <div class="sub">vs <b>weeks</b> at private banks</div>
-          </div>
-          <div class="card featured">
-            <div class="num">02</div>
-            <h4>eu-native</h4>
-            <div class="sub">vs <b>mercury (us-only)</b></div>
-          </div>
-          <div class="card">
-            <div class="num">03</div>
-            <h4>20 bps flat</h4>
-            <div class="sub">vs 50–150 bps wealth mgmt</div>
-          </div>
-          <div class="card">
-            <div class="num">04</div>
-            <h4>embeddable</h4>
-            <div class="sub">long-term distribution moat</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 07 :: CLOSING -->
-  <section class="slide s-close" data-id="07" data-name="closing">
-    <div class="marker"><span class="id">SLIDE_07</span><span>closing</span></div>
-    <div class="slide-inner">
-      <span class="eyebrow anim anim-1">// closing</span>
-      <div class="quote anim anim-2" style="margin-top:18px">
+      <span class="eyebrow anim anim-1">// market · moat · close</span>
+      <div class="quote anim anim-2" style="margin-top:14px">
         STRIPE IS AN <span class="y">API</span> FOR PAYMENTS.<br/>
         ALPACA IS AN <span class="y">API</span> FOR INVESTING.<br/>
         WE'RE THE <span class="y">AI AGENT LAYER</span> ON TOP.
       </div>
-      <div class="ask anim anim-3">
-        <div class="item"><b>// shipping</b>Prototype live today. 6-agent LangGraph + Alpaca paper-trades behind one chat.</div>
-        <div class="item"><b>// looking for</b>One design partner (Series A, €500k+ idle) + one fintech distribution partner.</div>
-        <div class="item"><b>// the math</b>TAM €1.5T. Mercury did $4B in 2 years post-SVB. Europe is wide open.</div>
+
+      <div class="market-strip anim anim-3">
+        <div class="ms-cell"><div class="k">// TAM</div><div class="v y">€1.5T+</div><div class="d">EU op-cash &lt; 1%</div></div>
+        <div class="ms-cell"><div class="k">// 1% share</div><div class="v">$300M ARR</div><div class="d">@ 20 bps</div></div>
+        <div class="ms-cell"><div class="k">// US comp</div><div class="v">$4B AUM</div><div class="d">mercury · 2yr post-svb</div></div>
+        <div class="ms-cell"><div class="k">// margin</div><div class="v">~90%</div><div class="d">software on AUM</div></div>
       </div>
-      <div class="stack-strip anim anim-4">
+
+      <div class="moat-row anim anim-4">
+        <span class="m-lbl">// MOAT</span>
+        <span class="m-pill y">30-min onboarding</span>
+        <span class="m-pill y">eu-native</span>
+        <span class="m-pill">20 bps flat</span>
+        <span class="m-pill">embeddable into neobanks</span>
+      </div>
+
+      <div class="ask anim anim-4">
+        <div class="item"><b>// shipping</b>Prototype live today. 6-agent LangGraph + Alpaca paper-trades behind one chat.</div>
+        <div class="item"><b>// looking for</b>One design partner (any EU SMB or startup, €500k+ idle) + one fintech distribution partner.</div>
+        <div class="item"><b>// gtm</b>Direct → startups (20bps) · then white-label embed in qonto / pleo / spendesk.</div>
+      </div>
+
+      <div class="stack-strip anim anim-5">
         <span class="lbl">// BUILT ON</span>
         <span class="y">ALPACA</span>·<span class="y">ORCA</span>·<span>LANGGRAPH</span>·<span>MCP</span>·<span>CLAUDE SONNET 4.6</span>·<span>FASTAPI</span>
       </div>
+
       <div class="end anim anim-5">
         <div><div class="big">LET'S<br/>GO.</div></div>
         <div class="right">
@@ -601,7 +558,7 @@
   </div>
   <div class="center">
     <button id="prevBtn">← prev</button>
-    <span class="ctr"><b id="curIdx">01</b> / <span id="totIdx">07</span> · <span id="curName">title</span></span>
+    <span class="ctr"><b id="curIdx">01</b> / <span id="totIdx">05</span> · <span id="curName">title</span></span>
     <button id="nextBtn">next →</button>
   </div>
   <div class="right">
@@ -616,7 +573,7 @@
     <div class="row"><span>next</span><b><kbd>→</kbd> <kbd>↓</kbd> <kbd>SPACE</kbd> <kbd>ENTER</kbd></b></div>
     <div class="row"><span>previous</span><b><kbd>←</kbd> <kbd>↑</kbd> <kbd>BACKSPACE</kbd></b></div>
     <div class="row"><span>first / last</span><b><kbd>HOME</kbd> <kbd>END</kbd></b></div>
-    <div class="row"><span>jump 1–7</span><b><kbd>1</kbd>–<kbd>7</kbd></b></div>
+    <div class="row"><span>jump 1–5</span><b><kbd>1</kbd>–<kbd>5</kbd></b></div>
     <div class="row"><span>fullscreen</span><b><kbd>F</kbd></b></div>
     <div class="row"><span>help</span><b><kbd>?</kbd> <kbd>H</kbd></b></div>
     <div class="row"><span>close</span><b><kbd>ESC</kbd></b></div>
@@ -660,7 +617,7 @@
       if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
       else document.exitFullscreen?.();
     }
-    else if (/^[1-7]$/.test(e.key)) go(parseInt(e.key,10)-1);
+    else if (/^[1-5]$/.test(e.key)) go(parseInt(e.key,10)-1);
   });
 
   document.getElementById('nextBtn').addEventListener('click', next);
